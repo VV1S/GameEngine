@@ -1,0 +1,7 @@
+﻿  Application.cpp
+     Creating library D:\dev\c++\GameEngine\bin\\Release~x64\GameEngine\GameEngine.lib and object D:\dev\c++\GameEngine\bin\\Release~x64\GameEngine\GameEngine.exp
+  Generating code
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 6 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  GameEngine.vcxproj -> D:\dev\c++\GameEngine\bin\Release~x64\GameEngine\GameEngine.dll
