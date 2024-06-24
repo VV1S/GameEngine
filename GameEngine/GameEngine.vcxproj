@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="enginepch.h" />
+    <ClInclude Include="src\enginepch.h" />
     <ClInclude Include="src\Engine\Events\KeyEvent.h" />
     <ClInclude Include="src\Engine\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Engine\Events\Event.h" />
@@ -22,6 +24,7 @@
     <ClInclude Include="src\Engine\EntryPoint.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\enginepch.cpp" />
     <ClCompile Include="src\Engine\Events\KeyEvent.cpp" />
     <ClCompile Include="src\Engine\Events\ApplicationEvent.cpp" />
     <ClCompile Include="src\Engine\Log.cpp" />
