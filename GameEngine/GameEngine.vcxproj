@@ -76,9 +76,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EG_PLATFORM_WINDOWS;EG_BUILD_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EG_PLATFORM_WINDOWS;EG_BUILD_DLL;_WINDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)GameEngine\vendor\spdlog\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\spdlog\include;$(ProjectDir)vendor\spdlog;$(ProjectDir)vendor\spdlog\include\spdlog\fmt;D:\dev\c++\GameEngine\GameEngine\vendor\spdlog\include\spdlog\fmt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,9 +91,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>EG_PLATFORM_WINDOWS;EG_BUILD_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EG_PLATFORM_WINDOWS;EG_BUILD_DLL;_WINDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)GameEngine\vendor\spdlog\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\spdlog\include;$(ProjectDir)vendor\spdlog;$(ProjectDir)vendor\spdlog\include\spdlog\fmt;D:\dev\c++\GameEngine\GameEngine\vendor\spdlog\include\spdlog\fmt</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
