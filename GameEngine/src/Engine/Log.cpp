@@ -1,4 +1,4 @@
-#include "../enginepch.h"
+#include "enginepch.h"
 #include "Log.h"
 
 namespace Engine
