@@ -65,6 +65,8 @@
       <Filter>Platforms\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\enginepch.h" />
+    <ClInclude Include="src\Engine\Input.h" />
+    <ClInclude Include="src\Platforms\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Application.cpp">
@@ -98,5 +100,6 @@
       <Filter>Platforms\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\enginepch.cpp" />
+    <ClCompile Include="src\Platforms\Windows\WindowsInput.cpp" />
   </ItemGroup>
 </Project>
