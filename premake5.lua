@@ -1,6 +1,7 @@
 workspace "GameEngine"
 	architecture "x64"
-
+	startproject "Sandbox"
+	
 	configurations
 	{
 		"Debug",
@@ -23,27 +24,28 @@ project "GameEngine"
 	location "GameEngine"
 	kind "SharedLib"
 	language "C++"
-	staticruntime "on" 
+	staticruntime "off" 
+	targetname "GameEngine"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "enginepch.h"
-	pchsource "GameEngine/src/enginepch.cpp"
+pchsource "%{prj.location}/src/enginepch.cpp"
 
 	files
 	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+    "%{prj.location}/src/**.h",
+    "%{prj.location}/src/**.cpp"
 	}
 
 	includedirs
 	{
-		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+    "%{prj.location}/src",
+    "%{prj.location}/vendor/spdlog/include",
+    "%{IncludeDir.GLFW}",
+    "%{IncludeDir.Glad}",
+    "%{IncludeDir.ImGui}"
 	}
 
 	links 
@@ -56,7 +58,6 @@ project "GameEngine"
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "on"
 		systemversion "latest"
 
 		defines
@@ -73,24 +74,24 @@ project "GameEngine"
 
 	filter "configurations:Debug"
 		defines "EG_DEBUG"
-		buildoptions "/MDd"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "EG_RELEASE"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "EG_DIST"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "on" 
+	staticruntime "off" 
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -103,8 +104,8 @@ project "Sandbox"
 
 	includedirs
 	{
-		"GameEngine/vendor/spdlog/include",
-		"GameEngine/src"
+		"GameEngine/src",
+		"GameEngine/vendor/spdlog/include"
 	}
 
 	links
@@ -114,7 +115,6 @@ project "Sandbox"
 
 	filter "system:windows"
 		cppdialect "C++20"
-		staticruntime "on"
 		systemversion "latest"
 
 		defines
@@ -124,15 +124,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "EG_DEBUG"
-		buildoptions "/MDd"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "EG_RELEASE"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "EG_DIST"
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
