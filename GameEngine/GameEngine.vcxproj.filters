@@ -67,6 +67,12 @@
     <ClInclude Include="src\enginepch.h" />
     <ClInclude Include="src\Engine\Input.h" />
     <ClInclude Include="src\Platforms\Windows\WindowsInput.h" />
+    <ClInclude Include="KeyCodes.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseButtonCodes.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Application.cpp">
