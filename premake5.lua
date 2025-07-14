@@ -23,9 +23,10 @@ include "GameEngine/vendor/imgui"
 
 project "GameEngine"
 	location "GameEngine"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
-	staticruntime "off" 
+	cppdialect "C++17"
+	staticruntime "off"
 	targetname "GameEngine"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -40,6 +41,11 @@ pchsource "%{prj.location}/src/enginepch.cpp"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl"
+	}
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs
@@ -61,7 +67,6 @@ pchsource "%{prj.location}/src/enginepch.cpp"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
 
 		defines
@@ -71,31 +76,27 @@ pchsource "%{prj.location}/src/enginepch.cpp"
 				"GLFW_INCLUDE_NONE"
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-		}
-
 	filter "configurations:Debug"
 		defines "EG_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "EG_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "EG_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "off" 
+	cppdialect "C++17"
+	staticruntime "off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -108,8 +109,9 @@ project "Sandbox"
 
 	includedirs
 	{
-		"GameEngine/src",
 		"GameEngine/vendor/spdlog/include",
+		"GameEngine/src",
+		"GameEngine/vendor",
 		"%{IncludeDir.glm}"
 	}
 
@@ -119,7 +121,6 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++20"
 		systemversion "latest"
 
 		defines
@@ -130,14 +131,14 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "EG_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "EG_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "EG_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"

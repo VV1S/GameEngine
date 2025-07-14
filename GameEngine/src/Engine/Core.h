@@ -1,11 +1,15 @@
 #pragma once
 
 #ifdef EG_PLATFORM_WINDOWS
+#if EG_DYNAMIC_LINK
 	#ifdef EG_BUILD_DLL
 		#define ENGINE_API __declspec(dllexport)
 	#else
 		#define ENGINE_API __declspec(dllimport)
 	#endif
+#else
+	#define ENGINE_API
+#endif
 #else
 	#error Engine only supports Windows!
 #endif
