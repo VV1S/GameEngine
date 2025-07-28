@@ -1365,6 +1365,12 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="src\Engine\Renderer\Buffer.h" />
+    <ClInclude Include="src\Engine\Renderer\Renderer.h" />
+    <ClInclude Include="src\Engine\Renderer\Shader.h" />
+    <ClInclude Include="src\Platforms\OpenGL\OpenGLBuffer.h" />
+    <ClInclude Include="src\Engine\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Platforms\OpenGL\OpenGLVertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Application.cpp">
@@ -1409,5 +1415,11 @@
     <ClCompile Include="src\enginepch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Engine\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Engine\Renderer\Shader.cpp" />
+    <ClCompile Include="src\Platforms\OpenGL\OpenGLBuffer.cpp" />
+    <ClCompile Include="src\Engine\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Platforms\OpenGL\OpenGLVertexArray.cpp" />
   </ItemGroup>
 </Project>
