@@ -13,6 +13,8 @@
 #include "Engine/Renderer/Buffer.h"
 #include "Engine/Renderer/VertexArray.h"
 
+#include "Engine/Renderer/OrthographicCamera.h"
+
 namespace Engine {
 
 	class ENGINE_API Application
@@ -43,6 +45,8 @@ namespace Engine {
 
 		std::shared_ptr<Shader> m_BlueShader;
 		std::shared_ptr<VertexArray> m_SquareVA;
+
+		OrthographicCamera m_Camera;
 	private:
 		static Application* s_Instance;
 	};
