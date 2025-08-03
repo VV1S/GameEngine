@@ -145,7 +145,7 @@ public:
 		Engine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		Engine::RenderCommand::Clear();
 
-		Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
+		Engine::Renderer::BeginScene(m_CameraController.GetCamera());
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
@@ -182,7 +182,7 @@ public:
 		ImGui::End();
 	}
 
-	void OnEvent(Hazel::Event& e) override
+	void OnEvent(Engine::Event& e) override
 	{
 		m_CameraController.OnEvent(e);
 	}
@@ -197,7 +197,7 @@ public:
 
 		Engine::Ref<Engine::Texture2D> m_Texture, m_potatoTexture;
 
-		Hazel::OrthographicCameraController m_CameraController;
+		Engine::OrthographicCameraController m_CameraController;
 		glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.8f };
 };
 
