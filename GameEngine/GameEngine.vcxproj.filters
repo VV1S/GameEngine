@@ -1412,6 +1412,7 @@
     <ClInclude Include="src\Engine\Core\MouseButtonCodes.h" />
     <ClInclude Include="src\Engine\Core\OrthographicCameraController.h" />
     <ClInclude Include="src\Engine\Core\Window.h" />
+    <ClInclude Include="src\Engine\Renderer\Renderer2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Events\ApplicationEvent.cpp">
@@ -1489,5 +1490,6 @@
     <ClCompile Include="src\Engine\Core\Log.cpp" />
     <ClCompile Include="src\Engine\Core\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Engine\Core\Window.cpp" />
+    <ClCompile Include="src\Engine\Renderer\Renderer2D.cpp" />
   </ItemGroup>
 </Project>
