@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../enginepch.h"
+#include "../../enginepch.h"
 
 #include "Core.h"
-#include "Events/Event.h"
+#include "../Events/Event.h"
 
 namespace Engine {
 
