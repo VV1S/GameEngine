@@ -1410,6 +1410,7 @@
     <ClInclude Include="src\Engine\Core\OrthographicCameraController.h" />
     <ClInclude Include="src\Engine\Core\Window.h" />
     <ClInclude Include="src\Engine\Renderer\Renderer2D.h" />
+    <ClInclude Include="src\Engine\Debug\Instrumentor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Events\ApplicationEvent.cpp">
