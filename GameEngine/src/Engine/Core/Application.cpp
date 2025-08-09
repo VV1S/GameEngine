@@ -17,6 +17,8 @@ namespace Engine {
 	
 	Application::Application()
 	{
+		EG_PROFILE_FUNCTION();
+
 		EG_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
@@ -31,10 +33,13 @@ namespace Engine {
 
 	Application::~Application()
 	{
+		EG_PROFILE_FUNCTION();
 	}
 
 	void Application::PushLayer(Layer* layer)
 	{
+		EG_PROFILE_FUNCTION();
+
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
@@ -46,6 +51,8 @@ namespace Engine {
 
 	void Application::OnEvent(Event& e)
 	{
+		EG_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
@@ -60,22 +67,34 @@ namespace Engine {
 
 	void Application::Run()
 	{
+		EG_PROFILE_FUNCTION();
+
 		while (m_Running)
 		{
+			EG_PROFILE_SCOPE("RunLoop");
+
 			float time = (float)glfwGetTime();
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
 			if (!m_Minimized)
 			{
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate(timestep);
-			}
+				{
+					EG_PROFILE_SCOPE("LayerStack OnUpdate");
 
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
+					for (Layer* layer : m_LayerStack)
+						layer->OnUpdate(timestep);
+				}
+
+				m_ImGuiLayer->Begin();
+				{
+					EG_PROFILE_SCOPE("LayerStack OnImGuiRender");
+
+					for (Layer* layer : m_LayerStack)
+						layer->OnImGuiRender();
+				}
+				m_ImGuiLayer->End();
+			}
 
 			m_Window->OnUpdate();
 		}
@@ -89,6 +108,8 @@ namespace Engine {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
+		EG_PROFILE_FUNCTION();
+
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 		{
 			m_Minimized = true;
