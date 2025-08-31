@@ -1,5 +1,4 @@
 #include "ExampleLayer.h"
-
 #include "imgui/imgui.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,7 +15,7 @@ ExampleLayer::ExampleLayer()
 		 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
 	};
 
-	Engine::Ref<Engine::VertexBuffer> vertexBuffer = Engine::VertexBuffer::Create(vertices, sizeof(vertices));
+	Engine::Shared<Engine::VertexBuffer> vertexBuffer = Engine::VertexBuffer::Create(vertices, sizeof(vertices));
 	Engine::BufferLayout layout = {
 		{ Engine::ShaderDataType::Float3, "a_Position" },
 		{ Engine::ShaderDataType::Float4, "a_Color" }
@@ -25,7 +24,7 @@ ExampleLayer::ExampleLayer()
 	m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 	uint32_t indices[3] = { 0, 1, 2 };
-	Engine::Ref<Engine::IndexBuffer> indexBuffer = Engine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+	Engine::Shared<Engine::IndexBuffer> indexBuffer = Engine::IndexBuffer::Create(indices, 3);
 	m_VertexArray->SetIndexBuffer(indexBuffer);
 
 	m_SquareVA = Engine::VertexArray::Create();
@@ -37,7 +36,7 @@ ExampleLayer::ExampleLayer()
 		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 	};
 
-	Engine::Ref<Engine::VertexBuffer> squareVB = Engine::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
+	Engine::Shared<Engine::VertexBuffer> squareVB = Engine::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
 	squareVB->SetLayout({
 		{ Engine::ShaderDataType::Float3, "a_Position" },
 		{ Engine::ShaderDataType::Float2, "a_TexCoord" }
@@ -45,77 +44,71 @@ ExampleLayer::ExampleLayer()
 	m_SquareVA->AddVertexBuffer(squareVB);
 
 	uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-	Engine::Ref<Engine::IndexBuffer> squareIB = Engine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
+	Engine::Shared<Engine::IndexBuffer> squareIB = Engine::IndexBuffer::Create(squareIndices, 6);
 	m_SquareVA->SetIndexBuffer(squareIB);
 
 	std::string vertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
+		#version 330 core
+		layout(location = 0) in vec3 a_Position;
+		layout(location = 1) in vec4 a_Color;
 
-			uniform mat4 u_ViewProjection;
-			uniform mat4 u_Transform;
+		uniform mat4 u_ViewProjection;
+		uniform mat4 u_Transform;
 
-			out vec3 v_Position;
-			out vec4 v_Color;
+		out vec3 v_Position;
+		out vec4 v_Color;
 
-			void main()
-			{
-				v_Position = a_Position;
-				v_Color = a_Color;
-				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
-			}
-		)";
+		void main()
+		{
+			v_Position = a_Position;
+			v_Color = a_Color;
+			gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
+		}
+	)";
 
 	std::string fragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
+		#version 330 core
+		layout(location = 0) out vec4 color;
 
-			in vec3 v_Position;
-			in vec4 v_Color;
+		in vec3 v_Position;
+		in vec4 v_Color;
 
-			void main()
-			{
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = v_Color;
-			}
-		)";
+		void main()
+		{
+			color = v_Color;
+		}
+	)";
 
 	m_Shader = Engine::Shader::Create("VertexPosColor", vertexSrc, fragmentSrc);
 
 	std::string flatColorShaderVertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
+		#version 330 core
+		layout(location = 0) in vec3 a_Position;
 
-			uniform mat4 u_ViewProjection;
-			uniform mat4 u_Transform;
+		uniform mat4 u_ViewProjection;
+		uniform mat4 u_Transform;
 
-			out vec3 v_Position;
+		out vec3 v_Position;
 
-			void main()
-			{
-				v_Position = a_Position;
-				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
-			}
-		)";
+		void main()
+		{
+			v_Position = a_Position;
+			gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
+		}
+	)";
 
 	std::string flatColorShaderFragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
+		#version 330 core
+		layout(location = 0) out vec4 color;
 
-			in vec3 v_Position;
-			
-			uniform vec3 u_Color;
+		in vec3 v_Position;
+		uniform vec3 u_Color;
 
-			void main()
-			{
-				color = vec4(u_Color, 1.0);
-			}
-		)";
+		void main()
+		{
+			color = vec4(u_Color, 1.0);
+		}
+	)";
 
 	m_FlatColorShader = Engine::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
@@ -128,21 +121,14 @@ ExampleLayer::ExampleLayer()
 	textureShader->SetInt("u_Texture", 0);
 }
 
-void ExampleLayer::OnAttach()
-{
-}
-
-void ExampleLayer::OnDetach()
-{
-}
+void ExampleLayer::OnAttach() {}
+void ExampleLayer::OnDetach() {}
 
 void ExampleLayer::OnUpdate(Engine::Timestep ts)
 {
-	// Update
 	m_CameraController.OnUpdate(ts);
 
-	// Render
-	Engine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+	Engine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 	Engine::RenderCommand::Clear();
 
 	Engine::Renderer::BeginScene(m_CameraController.GetCamera());
@@ -168,9 +154,6 @@ void ExampleLayer::OnUpdate(Engine::Timestep ts)
 	Engine::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 	m_ChernoLogoTexture->Bind();
 	Engine::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
-
-	// Triangle
-	// Engine::Renderer::Submit(m_Shader, m_VertexArray);
 
 	Engine::Renderer::EndScene();
 }

@@ -1,125 +1,137 @@
 #include "enginepch.h"
 #include "Application.h"
-#include "../Events/ApplicationEvent.h"
-#include "Log.h"
 
 #include "Engine/Renderer/Renderer.h"
+#include "Engine/Core/Input.h"
+#include "../../Platforms/Windows/WindowsInput.h"
+#include "Log.h"
 
-#include "Input.h"
-
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 namespace Engine {
 
-#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+    Application* Application::s_Instance = nullptr;
 
-	Application* Application::s_Instance = nullptr;
-	
-	Application::Application()
-	{
-		EG_PROFILE_FUNCTION();
+    Application::Application()
+    {
+        EG_CORE_CHECK(!s_Instance, "Application already exists!");
+        s_Instance = this;
 
-		EG_CORE_ASSERT(!s_Instance, "Application already exists!");
-		s_Instance = this;
+        // Create main window
+        m_Window = Window::Create();
+        m_Window->SetEventCallback([this](Event& e) { HandleEvent(e); });
 
-		m_Window = std::unique_ptr<Window>(Window::Create());
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+        // Initialize input AFTER the window exists
+        if (!Input::IsInitialized())
+        {
+            Input::Initialize(MakeUnique<WindowsInputBackend>());
+        }
 
-		Renderer::Init();
+        Renderer::Init();
 
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
-	}
+        // Setup ImGui overlay
+        m_ImGuiLayer = std::make_shared<ImGuiLayer>();
+        AddOverlay(m_ImGuiLayer);
+    }
 
-	Application::~Application()
-	{
-		EG_PROFILE_FUNCTION();
-	}
+    Application::~Application()
+    {
+        Renderer::Shutdown();
 
-	void Application::PushLayer(Layer* layer)
-	{
-		EG_PROFILE_FUNCTION();
+        if (Input::IsInitialized())
+            Input::Shutdown();
 
-		m_LayerStack.PushLayer(layer);
-		layer->OnAttach();
-	}
-	void Application::PushOverlay(Layer* layer)
-	{
-		m_LayerStack.PushOverlay(layer);
-		layer->OnAttach();
-	}
+        s_Instance = nullptr;
+    }
 
-	void Application::OnEvent(Event& e)
-	{
-		EG_PROFILE_FUNCTION();
+    void Application::AddLayer(const std::shared_ptr<Layer>& layer)
+    {
+        m_LayerStack.AddLayer(layer);
+        layer->OnAttach();
+    }
 
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
+    void Application::AddOverlay(const std::shared_ptr<Layer>& overlay)
+    {
+        m_LayerStack.AddOverlay(overlay);
+        overlay->OnAttach();
+    }
 
-		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
-		{
-			(*it)->OnEvent(e);
-			if (e.Handled)
-				break;
-		}
-	}
+    void Application::HandleEvent(Event& e)
+    {
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<WindowCloseEvent>(
+            [this](WindowCloseEvent& ev) { return OnWindowClose(ev); });
+        dispatcher.Dispatch<WindowResizeEvent>(
+            [this](WindowResizeEvent& ev) { return OnWindowResize(ev); });
 
-	void Application::Run()
-	{
-		EG_PROFILE_FUNCTION();
+        // Propagate to enabled layers in reverse order
+        for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
+        {
+            if ((*it)->IsEnabled())
+            {
+                (*it)->OnEvent(e);
+                if (e.Handled) break;
+            }
+        }
+    }
 
-		while (m_Running)
-		{
-			EG_PROFILE_SCOPE("RunLoop");
+    void Application::Run()
+    {
+        m_IsRunning = true;
 
-			float time = (float)glfwGetTime();
-			Timestep timestep = time - m_LastFrameTime;
-			m_LastFrameTime = time;
+        while (m_IsRunning)
+        {
+            const float currentTime = static_cast<float>(glfwGetTime());
+            Timestep deltaTime = currentTime - m_LastFrameTime;
+            m_LastFrameTime = currentTime;
 
-			if (!m_Minimized)
-			{
-				{
-					EG_PROFILE_SCOPE("LayerStack OnUpdate");
+            if (!m_Minimized)
+            {
+                UpdateLayers(deltaTime);
+                RenderImGui();
+            }
 
-					for (Layer* layer : m_LayerStack)
-						layer->OnUpdate(timestep);
-				}
+            m_Window->OnUpdate();
+        }
+    }
 
-				m_ImGuiLayer->Begin();
-				{
-					EG_PROFILE_SCOPE("LayerStack OnImGuiRender");
+    void Application::UpdateLayers(Timestep dt)
+    {
+        for (auto& layer : m_LayerStack)
+        {
+            if (layer->IsEnabled())
+                layer->OnUpdate(dt);
+        }
+    }
 
-					for (Layer* layer : m_LayerStack)
-						layer->OnImGuiRender();
-				}
-				m_ImGuiLayer->End();
-			}
+    void Application::RenderImGui()
+    {
+        m_ImGuiLayer->Begin();
+        for (auto& layer : m_LayerStack)
+        {
+            if (layer->IsEnabled())
+                layer->OnImGuiRender();
+        }
+        m_ImGuiLayer->End();
+    }
 
-			m_Window->OnUpdate();
-		}
-	}
+    bool Application::OnWindowClose(WindowCloseEvent&)
+    {
+        m_IsRunning = false;
+        return true;
+    }
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
-	{
-		m_Running = false;
-		return true;
-	}
+    bool Application::OnWindowResize(WindowResizeEvent& e)
+    {
+        if (e.GetWidth() == 0 || e.GetHeight() == 0)
+        {
+            m_Minimized = true;
+            return false;
+        }
 
-	bool Application::OnWindowResize(WindowResizeEvent& e)
-	{
-		EG_PROFILE_FUNCTION();
+        m_Minimized = false;
+        Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+        return false;
+    }
 
-		if (e.GetWidth() == 0 || e.GetHeight() == 0)
-		{
-			m_Minimized = true;
-			return false;
-		}
-
-		m_Minimized = false;
-		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
-
-		return false;
-	}
-
-}
+} // namespace Engine

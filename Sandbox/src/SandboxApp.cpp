@@ -3,7 +3,7 @@
 
 #include "Platforms/OpenGL/OpenGLShader.h"
 
-#include "Sandbox2D.h"
+#include "GameLayer.h"
 #include "ExampleLayer.h"
 
 class Sandbox : public Engine::Application
@@ -11,8 +11,8 @@ class Sandbox : public Engine::Application
 public:
 	Sandbox()
 	{
-		// PushLayer(new ExampleLayer());
-		PushLayer(new Sandbox2D());
+		// AddLayer(std::make_shared<ExampleLayer>());
+		AddLayer(std::make_shared<GameLayer>());
 	}
 
 	~Sandbox()

@@ -1,38 +1,49 @@
 #pragma once
-
 #include "Engine/Renderer/Buffer.h"
+#include <cstdint>
 
 namespace Engine {
 
-	class OpenGLVertexBuffer : public VertexBuffer
-	{
-	public:
-		OpenGLVertexBuffer(float* vertices, uint32_t size);
-		virtual ~OpenGLVertexBuffer();
+    class OpenGLVertexBuffer final : public VertexBuffer {
+    public:
+        OpenGLVertexBuffer(float* vertices, uint32_t size);
+        ~OpenGLVertexBuffer() override;
+        OpenGLVertexBuffer(const OpenGLVertexBuffer&) = delete;
+        OpenGLVertexBuffer& operator=(const OpenGLVertexBuffer&) = delete;
+        OpenGLVertexBuffer(OpenGLVertexBuffer&&) noexcept;
+        OpenGLVertexBuffer& operator=(OpenGLVertexBuffer&&) noexcept;
 
-		virtual void Bind() const override;
-		virtual void Unbind() const override;
+        void Bind() const override;
+        void Unbind() const override;
 
-		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
-		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
-	private:
-		uint32_t m_RendererID;
-		BufferLayout m_Layout;
-	};
+        const BufferLayout& GetLayout() const override { return m_Layout; }
+        void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 
-	class OpenGLIndexBuffer : public IndexBuffer
-	{
-	public:
-		OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
-		virtual ~OpenGLIndexBuffer();
+        uint32_t id() const noexcept { return m_ID; }
 
-		virtual void Bind() const;
-		virtual void Unbind() const;
+    private:
+        uint32_t m_ID = 0;
+        BufferLayout m_Layout;
+    };
 
-		virtual uint32_t GetCount() const { return m_Count; }
-	private:
-		uint32_t m_RendererID;
-		uint32_t m_Count;
-	};
+    class OpenGLIndexBuffer final : public IndexBuffer {
+    public:
+        OpenGLIndexBuffer(uint32_t* indices, uint32_t count);
+        ~OpenGLIndexBuffer() override;
+        OpenGLIndexBuffer(const OpenGLIndexBuffer&) = delete;
+        OpenGLIndexBuffer& operator=(const OpenGLIndexBuffer&) = delete;
+        OpenGLIndexBuffer(OpenGLIndexBuffer&&) noexcept;
+        OpenGLIndexBuffer& operator=(OpenGLIndexBuffer&&) noexcept;
 
-}
+        void Bind() const override;
+        void Unbind() const override;
+
+        uint32_t GetCount() const override { return m_Count; }
+        uint32_t id() const noexcept { return m_ID; }
+
+    private:
+        uint32_t m_ID = 0;
+        uint32_t m_Count = 0;
+    };
+
+} // namespace Engine

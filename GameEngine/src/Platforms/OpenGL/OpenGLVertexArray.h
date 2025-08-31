@@ -1,27 +1,32 @@
 #pragma once
-
+#include "Engine/Core/Core.h"
 #include "Engine/Renderer/VertexArray.h"
+#include <vector>
+#include <cstdint>
 
 namespace Engine {
 
-	class OpenGLVertexArray : public VertexArray
-	{
-	public:
-		OpenGLVertexArray();
-		virtual ~OpenGLVertexArray();
+    class OpenGLVertexArray final : public VertexArray {
+    public:
+        OpenGLVertexArray();
+        ~OpenGLVertexArray() override;
 
-		virtual void Bind() const override;
-		virtual void Unbind() const override;
+        void Bind() const override;
+        void Unbind() const override;
 
-		virtual void AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) override;
-		virtual void SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) override;
+        void AddVertexBuffer(const Shared<VertexBuffer>& vertexBuffer) override;
+        void SetIndexBuffer(const Shared<IndexBuffer>& indexBuffer) override;
 
-		virtual const std::vector<std::shared_ptr<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; }
-		virtual const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
-	private:
-		uint32_t m_RendererID;
-		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
-	};
+        const std::vector<Shared<VertexBuffer>>& GetVertexBuffers() const override { return m_VBs; }
+        const Shared<IndexBuffer>& GetIndexBuffer() const override { return m_IB; }
 
-}
+    private:
+        uint32_t m_VAO = 0;
+        std::vector<Shared<VertexBuffer>> m_VBs;
+        Shared<IndexBuffer> m_IB;
+
+        uint32_t m_BindingBase = 0;
+        uint32_t m_AttribBase = 0;
+    };
+
+} // namespace Engine

@@ -1,73 +1,89 @@
 #pragma once
 
 #include "Event.h"
+#include <sstream>
 
 namespace Engine {
 
-	class ENGINE_API KeyEvent : public Event
-	{
-	public:
-		inline int GetKeyCode() const { return m_KeyCode; }
+    // Base for keyboard events
+    class ENGINE_API KeyEvent : public Event
+    {
+    public:
+        int GetKeyCode() const { return m_Key; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
-	protected:
-		KeyEvent(int keycode)
-			: m_KeyCode(keycode) {}
+        // Common group flags for all keyboard events
+        uint32_t Groups() const noexcept override
+        {
+            return ToMask(EventGroup::Input) | ToMask(EventGroup::Keyboard);
+        }
 
-		int m_KeyCode;
-	};
+    protected:
+        explicit KeyEvent(int key) : m_Key(key) {}
+        int m_Key;
+    };
 
-	class ENGINE_API KeyPressedEvent : public KeyEvent
-	{
-	public:
-		KeyPressedEvent(int keycode, int repeatCount)
-			: KeyEvent(keycode), m_RepeatCount(repeatCount) {}
+    // Key Pressed
+    class ENGINE_API KeyPressedEvent : public KeyEvent
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::KeyPressed;
 
-		inline int GetRepeatCount() const { return m_RepeatCount; }
+        KeyPressedEvent(int key, int repeatCount)
+            : KeyEvent(key), m_Repeat(repeatCount) {
+        }
 
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
-			return ss.str();
-		}
+        int GetRepeatCount() const { return m_Repeat; }
 
-		EVENT_CLASS_TYPE(KeyPressed)
-	private:
-		int m_RepeatCount;
-	};
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "KeyPressed"; }
 
-	class ENGINE_API KeyReleasedEvent : public KeyEvent
-	{
-	public:
-		KeyReleasedEvent(int keycode)
-			: KeyEvent(keycode) {}
+        std::string ToString() const override
+        {
+            std::ostringstream ss;
+            ss << Name() << ": " << m_Key << " (" << m_Repeat << " repeats)";
+            return ss.str();
+        }
 
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "KeyReleasedEvent: " << m_KeyCode;
-			return ss.str();
-		}
+    private:
+        int m_Repeat = 0;
+    };
 
-		EVENT_CLASS_TYPE(KeyReleased)
-	};
+    // Key Released
+    class ENGINE_API KeyReleasedEvent : public KeyEvent
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::KeyReleased;
 
-	class ENGINE_API KeyTypedEvent : public KeyEvent
-	{
-	public:
-		KeyTypedEvent(int keycode)
-			: KeyEvent(keycode) {
-		}
+        explicit KeyReleasedEvent(int key) : KeyEvent(key) {}
 
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "KeyTypedEvent: " << m_KeyCode;
-			return ss.str();
-		}
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "KeyReleased"; }
 
-		EVENT_CLASS_TYPE(KeyTyped)
-	};
-}
+        std::string ToString() const override
+        {
+            std::ostringstream ss;
+            ss << Name() << ": " << m_Key;
+            return ss.str();
+        }
+    };
 
+    // Key Typed (text input)
+    class ENGINE_API KeyTypedEvent : public KeyEvent
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::KeyTyped;
+
+        explicit KeyTypedEvent(int key) : KeyEvent(key) {}
+
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "KeyTyped"; }
+
+        std::string ToString() const override
+        {
+            std::ostringstream ss;
+            ss << Name() << ": " << m_Key;
+            return ss.str();
+        }
+    };
+
+} // namespace Engine

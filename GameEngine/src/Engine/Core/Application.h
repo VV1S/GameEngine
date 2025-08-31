@@ -6,44 +6,52 @@
 #include "Engine/Core/LayerStack.h"
 #include "Engine/Events/Event.h"
 #include "Engine/Events/ApplicationEvent.h"
-
 #include "Engine/Core/Timestep.h"
-
 #include "Engine/ImGui/ImGuiLayer.h"
+
+#include <memory>
 
 namespace Engine {
 
-	class Application
-	{
-	public:
-		Application();
-		virtual ~Application();
+    class Application
+    {
+    public:
+        Application();
+        virtual ~Application();
 
-		void Run();
+        void Run();
 
-		void OnEvent(Event& e);
+        // Layer management
+        void AddLayer(const std::shared_ptr<Layer>& layer);
+        void AddOverlay(const std::shared_ptr<Layer>& overlay);
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
+        // Accessors
+        inline Window& GetWindow() { return *m_Window; }
+        inline static Application& Get() { return *s_Instance; }
 
-		inline Window& GetWindow() { return *m_Window; }
+    private:
+        // Event pipeline
+        void HandleEvent(Event& e);
+        bool OnWindowClose(WindowCloseEvent& e);
+        bool OnWindowResize(WindowResizeEvent& e);
 
-		inline static Application& Get() { return *s_Instance; }
-	private:
-		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(WindowResizeEvent& e);
-	private:
-		std::unique_ptr<Window> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
-		bool m_Running = true;
-		bool m_Minimized = false;
-		LayerStack m_LayerStack;
-		float m_LastFrameTime = 0.0f;
-	private:
-		static Application* s_Instance;
-	};
+        // Main loop helpers
+        void UpdateLayers(Timestep dt);
+        void RenderImGui();
 
-	// To be defined in CLIENTAdd commentMore actions
-	Application* CreateApplication();
-}
+    private:
+        std::unique_ptr<Window>    m_Window;
+        std::shared_ptr<ImGuiLayer> m_ImGuiLayer;
 
+        bool   m_IsRunning = false;
+        bool   m_Minimized = false;
+        float  m_LastFrameTime = 0.0f;
+        LayerStack m_LayerStack;
+
+        static Application* s_Instance;
+    };
+
+    // Implemented in the client (Sandbox)
+    Application* CreateApplication();
+
+} // namespace Engine

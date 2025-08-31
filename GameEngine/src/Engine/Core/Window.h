@@ -1,47 +1,65 @@
 #pragma once
 
-#include "../../enginepch.h"
+#include <functional>
+#include <string>
+#include <cstdint>
 
-#include "Core.h"
-#include "../Events/Event.h"
+#include "Engine/Core/Core.h"
+#include "Engine/Events/Event.h"
 
 namespace Engine {
 
-	struct WindowProps
-	{
-		std::string Title;
-		unsigned int Width;
-		unsigned int Height;
+    // Strongly-typed window configuration with a few common flags.
+    struct WindowConfig
+    {
+        std::string Title = "Game Engine";
+        uint32_t    Width = 1280;
+        uint32_t    Height = 720;
+        bool        VSync = true;
+        bool        Resizable = true;
+        bool        Visible = true;
+    };
 
-		WindowProps(const std::string& title = "Game Engine",
-			unsigned int width = 1280,
-			unsigned int height = 720)
-			: Title(title), Width(width), Height(height)
-		{
-		}
-	};
+    // Cross-platform window interface.
+    // NOTE: Lifecycle (create/destroy) handled via Unique<Window>.
+    class ENGINE_API Window
+    {
+    public:
+        using EventCallback = std::function<void(Event&)>;
 
-	// Interface representing a desktop system based Window
-	class ENGINE_API Window
-	{
-	public:
-		using EventCallbackFn = std::function<void(Event&)>;
+        virtual ~Window() = default;
 
-		virtual ~Window() {}
+        // Per-frame pump: usually polls events & swaps buffers.
+        virtual void OnUpdate() = 0;
 
-		virtual void OnUpdate() = 0;
+        // Dimensions (window size in screen coordinates)
+        virtual uint32_t GetWidth()  const = 0;
+        virtual uint32_t GetHeight() const = 0;
 
-		virtual unsigned int GetWidth() const = 0;
-		virtual unsigned int GetHeight() const = 0;
+        // Optional: framebuffer size (pixels), useful on HiDPI
+        virtual void GetFramebufferSize(uint32_t& outW, uint32_t& outH) const { outW = GetWidth(); outH = GetHeight(); }
 
-		// Window attributes
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
-		virtual void SetVSync(bool enabled) = 0;
-		virtual bool IsVSync() const = 0;
+        // DPI scale (1.0 = 96 DPI); default 1.0 if unsupported
+        virtual float GetDPIScale() const { return 1.0f; }
 
-		virtual void* GetNativeWindow() const = 0;
+        // Attributes
+        virtual void SetTitle(const std::string& title) = 0;
+        virtual void SetVSync(bool enabled) = 0;
+        virtual bool IsVSync() const = 0;
 
-		static Window* Create(const WindowProps& props = WindowProps());
-	};
+        // Cursor / clipboard conveniences (optional; provide sensible defaults)
+        virtual void  SetCursorVisible(bool visible) {}
+        virtual void  SetClipboardText(const std::string& text) {}
+        virtual std::string GetClipboardText() const { return {}; }
 
-}
+        // Event hookup
+        virtual void SetEventCallback(const EventCallback& callback) = 0;
+
+        // Native handle (GLFWwindow*, HWND, etc.)
+        virtual void* GetNativeWindow() const = 0;
+
+        // Factory (implemented per-platform)
+        static Unique<Window> Create(const WindowConfig& cfg = {});
+    };
+
+} // namespace Engine

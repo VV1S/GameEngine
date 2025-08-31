@@ -1,82 +1,104 @@
 #pragma once
 
-#include "../../enginepch.h"
-#include "../Core/Core.h"
+#include <cstdint>
+#include <functional>
+#include <ostream>
+#include <string>
+#include "Engine/Core/Core.h"
 
 namespace Engine {
 
-	// Events in Engine are currently blocking, meaning when an event occurs it
-	// immediately gets dispatched and must be dealt with right then an there.
-	// For the future, a better strategy might be to buffer events in an event
-	// bus and process them during the "event" part of the update stage.
+    // Exact event type (kind)
+    enum class EventKind : uint16_t
+    {
+        None = 0,
 
-	enum class EventType
-	{
-		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		AppTick, AppUpdate, AppRender,
-		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
-	};
+        // Window / App
+        WindowClose,
+        WindowResize,
+        WindowFocus,
+        WindowLostFocus,
+        WindowMoved,
+        AppTick,
+        AppUpdate,
+        AppRender,
 
-	enum EventCategory
-	{
-		None = 0,
-		EventCategoryApplication = BIT(0),
-		EventCategoryInput = BIT(1),
-		EventCategoryKeyboard = BIT(2),
-		EventCategoryMouse = BIT(3),
-		EventCategoryMouseButton = BIT(4)
-	};
+        // Keyboard
+        KeyPressed,
+        KeyReleased,
+        KeyTyped,
 
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type; }\
-								virtual EventType GetEventType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }
+        // Mouse
+        MouseButtonPressed,
+        MouseButtonReleased,
+        MouseMoved,
+        MouseScrolled
+    };
 
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+    // Bitmask groups for quick filtering/routing
+    enum class EventGroup : uint32_t
+    {
+        None = 0,
+        Application = BitMask(0),
+        Input = BitMask(1),
+        Keyboard = BitMask(2),
+        Mouse = BitMask(3),
+        MouseButton = BitMask(4),
+    };
 
-	class ENGINE_API Event
-	{
-	public:
-		bool Handled = false;
+    inline constexpr uint32_t ToMask(EventGroup g) { return static_cast<uint32_t>(g); }
+    inline constexpr EventGroup operator|(EventGroup a, EventGroup b)
+    {
+        return static_cast<EventGroup>(ToMask(a) | ToMask(b));
+    }
 
-		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual int GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+    class ENGINE_API Event
+    {
+    public:
+        virtual ~Event() = default;
 
-		inline bool IsInCategory(EventCategory category)
-		{
-			return GetCategoryFlags() & category;
-		}
-	};
+        // Identity
+        virtual EventKind    Kind()   const noexcept = 0;
+        virtual const char* Name()   const noexcept = 0;
+        virtual uint32_t     Groups() const noexcept = 0;
 
-	class EventDispatcher
-	{
-		template<typename T>
-		using EventFn = std::function<bool(T&)>;
-	public:
-		EventDispatcher(Event& event)
-			: m_Event(event)
-		{
-		}
+        // Text
+        virtual std::string ToString() const { return Name(); }
 
-		template<typename T>
-		bool Dispatch(EventFn<T> func)
-		{
-			if (m_Event.GetEventType() == T::GetStaticType())
-			{
-				m_Event.Handled = func(*(T*)&m_Event);
-				return true;
-			}
-			return false;
-		}
-	private:
-		Event& m_Event;
-	};
+        // State
+        bool Handled = false;
 
-	inline std::ostream& operator<<(std::ostream& os, const Event& e)
-	{
-		return os << e.ToString();
-	}
-}
+        // Helpers
+        bool IsInGroup(EventGroup group) const noexcept
+        {
+            return (Groups() & ToMask(group)) != 0;
+        }
+    };
+
+    // Simple type-based dispatcher
+    class EventDispatcher
+    {
+    public:
+        explicit EventDispatcher(Event& e) : m_Event(e) {}
+
+        template<typename TEvent, typename Fn>
+        bool Dispatch(Fn&& fn)
+        {
+            if (m_Event.Kind() == TEvent::kKind)
+            {
+                m_Event.Handled = std::forward<Fn>(fn)(static_cast<TEvent&>(m_Event));
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        Event& m_Event;
+    };
+
+    inline std::ostream& operator<<(std::ostream& os, const Event& e)
+    {
+        return os << e.ToString();
+    }
+
+} // namespace Engine

@@ -1,45 +1,54 @@
 #pragma once
 
-#include "../../Engine/Core/Window.h"
-#include "../../Engine/Renderer/GraphicsContext.h"
-#include <../../../vendor/GLFW/include/GLFW/glfw3.h>
+#include "Engine/Core/Window.h"
+#include "Engine/Renderer/GraphicsContext.h"
+#include <memory>
+
+// Forward declare to avoid including glfw everywhere in headers
+struct GLFWwindow;
 
 namespace Engine {
 
-	class WindowsWindow : public Window
-	{
-	public:
-		WindowsWindow(const WindowProps& props);
-		virtual ~WindowsWindow();
+    class WindowsWindow final : public Window
+    {
+    public:
+        explicit WindowsWindow(const WindowConfig& cfg);
+        ~WindowsWindow() override;
 
-		void OnUpdate() override;
+        // Per-frame pump
+        void OnUpdate() override;
 
-		inline unsigned int GetWidth() const override { return m_Data.Width; }
-		inline unsigned int GetHeight() const override { return m_Data.Height; }
+        // Dimensions
+        uint32_t GetWidth()  const override { return m_Data.Width; }
+        uint32_t GetHeight() const override { return m_Data.Height; }
 
-		// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-		void SetVSync(bool enabled) override;
-		bool IsVSync() const override;
+        // Attributes
+        void SetTitle(const std::string& title) override;
+        void SetVSync(bool enabled) override;
+        bool IsVSync() const override;
 
-		inline virtual void* GetNativeWindow() const { return m_Window; }
-	private:
-		virtual void Init(const WindowProps& props);
-		virtual void Shutdown();
-	private:
-		GLFWwindow* m_Window;
-		GraphicsContext* m_Context;
+        void SetEventCallback(const EventCallback& callback) override;
 
-		struct WindowData
-		{
-			std::string Title;
-			unsigned int Width, Height;
-			bool VSync;
+        // Native handle
+        void* GetNativeWindow() const override { return m_Window; }
 
-			EventCallbackFn EventCallback;
-		};
+    private:
+        void Init(const WindowConfig& cfg);
+        void Shutdown();
 
-		WindowData m_Data;
-	};
+    private:
+        GLFWwindow* m_Window = nullptr;
+        Unique<GraphicsContext> m_Context;
 
-}
+        struct WindowData
+        {
+            std::string Title;
+            uint32_t Width = 0;
+            uint32_t Height = 0;
+            bool VSync = true;
+
+            EventCallback Callback; // event sink provided by Application
+        } m_Data;
+    };
+
+} // namespace Engine

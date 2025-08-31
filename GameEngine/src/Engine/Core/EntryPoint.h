@@ -2,23 +2,44 @@
 
 #ifdef EG_PLATFORM_WINDOWS
 
+#include <memory>
+#include <exception>
+#include <cstdlib>
+
+#include "Core.h"
+#include "Log.h"
+#include "Application.h"
+
 extern Engine::Application* Engine::CreateApplication();
 
 int main(int argc, char** argv)
 {
-	Engine::Log::Init();
+    (void)argc; (void)argv; // unused for now
 
-	EG_PROFILE_BEGIN_SESSION("Startup", "EngineProfile-Startup.json");
-	auto app = Engine::CreateApplication();
-	EG_PROFILE_END_SESSION();
+    // Initialize logging
+    Engine::Log::Init();
 
-	EG_PROFILE_BEGIN_SESSION("Runtime", "EngineProfile-Runtime.json");
-	app->Run();
-	EG_PROFILE_END_SESSION();
+    int exitCode = EXIT_SUCCESS;
 
-	EG_PROFILE_BEGIN_SESSION("Startup", "EngineProfile-Shutdown.json");
-	delete app;
-	EG_PROFILE_END_SESSION();
+    try
+    {
+        // Create and run the application (RAII via unique_ptr)
+        std::unique_ptr<Engine::Application> app{ Engine::CreateApplication() };
+        app->Run(); // blocks until close
+        // app is destroyed automatically here
+    }
+    catch (const std::exception& ex)
+    {
+        EG_CORE_ERROR("Unhandled std::exception: {}", ex.what());
+        exitCode = EXIT_FAILURE;
+    }
+    catch (...)
+    {
+        EG_CORE_ERROR("Unhandled unknown exception.");
+        exitCode = EXIT_FAILURE;
+    }
+
+    return exitCode;
 }
 
-#endif
+#endif // EG_PLATFORM_WINDOWS

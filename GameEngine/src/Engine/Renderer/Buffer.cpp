@@ -1,34 +1,21 @@
 #include "enginepch.h"
 #include "Buffer.h"
-
-#include "Renderer.h"
-
-#include "Platforms/OpenGL/OpenGLBuffer.h"
+#include "RendererBackend.h"
 
 namespace Engine {
 
-	std::shared_ptr<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
-	{
-		switch (Renderer::GetAPI())
-		{
-		case RendererAPI::API::None:    EG_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return std::make_shared<OpenGLVertexBuffer>(vertices, size);
-		}
+    Shared<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size) {
+        EG_PROFILE_FUNCTION();
+        auto fn = Detail::GetCreators().vb;
+        EG_CORE_CHECK(fn, "VertexBuffer creator not bound!");
+        return fn(vertices, size);
+    }
 
-		EG_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
-	}
-
-	std::shared_ptr<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t size)
-	{
-		switch (Renderer::GetAPI())
-		{
-		case RendererAPI::API::None:    EG_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return std::make_shared <OpenGLIndexBuffer>(indices, size);
-		}
-
-		EG_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
-	}
+    Shared<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count) {
+        EG_PROFILE_FUNCTION();
+        auto fn = Detail::GetCreators().ib;
+        EG_CORE_CHECK(fn, "IndexBuffer creator not bound!");
+        return fn(indices, count);
+    }
 
 }

@@ -1,42 +1,60 @@
 #include "enginepch.h"
 #include "Renderer.h"
-
-#include "Platforms/OpenGL/OpenGLShader.h"
 #include "Renderer2D.h"
+#include "RendererBackend.h"
 
 namespace Engine {
 
-	Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;
+    Renderer::SceneData& Renderer::Scene() {
+        static SceneData s;
+        return s;
+    }
 
-	void Renderer::Init()
-	{
-		EG_PROFILE_FUNCTION();
+    void Renderer::Init() {
+        EG_PROFILE_FUNCTION();
+        RenderCommand::Init();
 
-		RenderCommand::Init();
-		Renderer2D::Init();
-	}
+        // Bind creators ONCE based on current API
+        switch (Renderer::GetAPI()) {
+        case RendererAPI::API::OpenGL:
+            Detail::UseOpenGLCreators();
+            break;
+        case RendererAPI::API::None:
+        default:
+            EG_CORE_CHECK(false, "Unsupported Renderer API!");
+            break;
+        }
 
-	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
-	{
-		RenderCommand::SetViewport(0, 0, width, height);
-	}
+        Renderer2D::Init();
+    }
 
-	void Renderer::BeginScene(OrthographicCamera& camera)
-	{
-		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-	}
+    void Renderer::Shutdown() {
+        EG_PROFILE_FUNCTION();
+        Renderer2D::Shutdown();
+        // nothing else to do: no heap globals
+    }
 
-	void Renderer::EndScene()
-	{
-	}
+    void Renderer::OnWindowResize(uint32_t width, uint32_t height) {
+        RenderCommand::SetViewport(0, 0, width, height);
+    }
 
-	void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
-	{
-		shader->Bind();
-		std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
-		std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_Transform", transform);
-		vertexArray->Bind();
-		RenderCommand::DrawIndexed(vertexArray);
-	}
+    void Renderer::BeginScene(OrthographicCamera& camera) {
+        Scene().ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    }
 
-}
+    void Renderer::EndScene() {
+        // place for future flush/batch
+    }
+
+    void Renderer::Submit(const Shared<Shader>& shader,
+        const Shared<VertexArray>& vertexArray,
+        const glm::mat4& transform) {
+        EG_PROFILE_FUNCTION();
+        shader->Bind();
+        shader->SetMat4("u_ViewProjection", Scene().ViewProjectionMatrix);
+        shader->SetMat4("u_Transform", transform);
+        vertexArray->Bind();
+        RenderCommand::DrawIndexed(vertexArray);
+    }
+
+} // namespace Engine

@@ -1,47 +1,52 @@
 #pragma once
-
 #include "Engine/Renderer/Shader.h"
 #include <glm/glm.hpp>
-
-// TODO: REMOVE!
-typedef unsigned int GLenum;
+#include <unordered_map>
 
 namespace Engine {
 
-	class OpenGLShader : public Shader
-	{
-	public:
-		OpenGLShader(const std::string& filepath);
-		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
-		virtual ~OpenGLShader();
+    class OpenGLShader final : public Shader {
+    public:
+        explicit OpenGLShader(const std::string& filepath);
+        OpenGLShader(const std::string& name, const std::string& vs, const std::string& fs);
+        ~OpenGLShader() override;
 
-		virtual void Bind() const override;
-		virtual void Unbind() const override;
+        OpenGLShader(const OpenGLShader&) = delete;
+        OpenGLShader& operator=(const OpenGLShader&) = delete;
+        OpenGLShader(OpenGLShader&&) = delete;
+        OpenGLShader& operator=(OpenGLShader&&) = delete;
 
-		virtual void SetInt(const std::string& name, int value) override;
-		virtual void SetFloat(const std::string& name, float value) override;
-		virtual void SetFloat3(const std::string& name, const glm::vec3& value) override;
-		virtual void SetFloat4(const std::string& name, const glm::vec4& value) override;
-		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
+        void Bind() const override;
+        void Unbind() const override;
 
-		virtual const std::string& GetName() const override { return m_Name; }
+        void SetInt(const std::string& n, int v) override;
+        void SetFloat(const std::string& n, float v) override;
+        void SetFloat3(const std::string& n, const glm::vec3& v) override;
+        void SetFloat4(const std::string& n, const glm::vec4& v) override;
+        void SetMat4(const std::string& n, const glm::mat4& m) override;
 
-		void UploadUniformInt(const std::string& name, int value);
+        const std::string& GetName() const override { return m_Name; }
 
-		void UploadUniformFloat(const std::string& name, float value);
-		void UploadUniformFloat2(const std::string& name, const glm::vec2& value);
-		void UploadUniformFloat3(const std::string& name, const glm::vec3& value);
-		void UploadUniformFloat4(const std::string& name, const glm::vec4& value);
+        // kept for compatibility:
+        void UploadUniformInt(const std::string& n, int v);
+        void UploadUniformFloat(const std::string& n, float v);
+        void UploadUniformFloat2(const std::string& n, const glm::vec2& v);
+        void UploadUniformFloat3(const std::string& n, const glm::vec3& v);
+        void UploadUniformFloat4(const std::string& n, const glm::vec4& v);
+        void UploadUniformMat3(const std::string& n, const glm::mat3& m);
+        void UploadUniformMat4(const std::string& n, const glm::mat4& m);
 
-		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
-		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
-	private:
-		std::string ReadFile(const std::string& filepath);
-		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
-		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
-	private:
-		uint32_t m_RendererID;
-		std::string m_Name;
-	};
+    private:
+        std::string ReadFile(const std::string& path) const;
+        std::unordered_map<unsigned, std::string> Preprocess(const std::string& src) const;
+        void CompileLink(const std::unordered_map<unsigned, std::string>& sources);
 
-}
+        int Locate(const std::string& n) const; // cached uniform location
+
+    private:
+        unsigned m_Program = 0;
+        std::string m_Name;
+        mutable std::unordered_map<std::string, int> m_LocCache;
+    };
+
+} // namespace Engine

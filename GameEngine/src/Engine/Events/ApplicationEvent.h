@@ -1,64 +1,89 @@
 #pragma once
 
 #include "Event.h"
+#include <sstream>
 
 namespace Engine {
 
-	class ENGINE_API WindowResizeEvent : public Event
-	{
-	public:
-		WindowResizeEvent(unsigned int width, unsigned int height)
-			: m_Width(width), m_Height(height) {}
+    // ------------------------------
+    // Window Resize
+    // ------------------------------
+    class ENGINE_API WindowResizeEvent : public Event
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::WindowResize;
 
-		inline unsigned int GetWidth() const { return m_Width; }
-		inline unsigned int GetHeight() const { return m_Height; }
+        WindowResizeEvent(uint32_t w, uint32_t h) : m_Width(w), m_Height(h) {}
 
-		std::string ToString() const override
-		{
-			std::stringstream ss;
-			ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
-			return ss.str();
-		}
+        uint32_t GetWidth()  const { return m_Width; }
+        uint32_t GetHeight() const { return m_Height; }
 
-		EVENT_CLASS_TYPE(WindowResize)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
-	private:
-		unsigned int m_Width, m_Height;
-	};
+        // Event interface
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "WindowResize"; }
+        uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
 
-	class ENGINE_API WindowCloseEvent : public Event
-	{
-	public:
-		WindowCloseEvent() {}
+        std::string ToString() const override
+        {
+            std::ostringstream ss;
+            ss << Name() << ": " << m_Width << "x" << m_Height;
+            return ss.str();
+        }
 
-		EVENT_CLASS_TYPE(WindowClose)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
-	};
+    private:
+        uint32_t m_Width, m_Height;
+    };
 
-	class ENGINE_API AppTickEvent : public Event
-	{
-	public:
-		AppTickEvent() {}
+    // ------------------------------
+    // Window Close
+    // ------------------------------
+    class ENGINE_API WindowCloseEvent : public Event
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::WindowClose;
 
-		EVENT_CLASS_TYPE(AppTick)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
-	};
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "WindowClose"; }
+        uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
+    };
 
-	class ENGINE_API AppUpdateEvent : public Event
-	{
-	public:
-		AppUpdateEvent() {}
+    // ------------------------------
+    // App Tick
+    // ------------------------------
+    class ENGINE_API AppTickEvent : public Event
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::AppTick;
 
-		EVENT_CLASS_TYPE(AppUpdate)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
-	};
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "AppTick"; }
+        uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
+    };
 
-	class ENGINE_API AppRenderEvent : public Event
-	{
-	public:
-		AppRenderEvent() {}
+    // ------------------------------
+    // App Update
+    // ------------------------------
+    class ENGINE_API AppUpdateEvent : public Event
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::AppUpdate;
 
-		EVENT_CLASS_TYPE(AppRender)
-			EVENT_CLASS_CATEGORY(EventCategoryApplication)
-	};
-}
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "AppUpdate"; }
+        uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
+    };
+
+    // ------------------------------
+    // App Render
+    // ------------------------------
+    class ENGINE_API AppRenderEvent : public Event
+    {
+    public:
+        static constexpr EventKind kKind = EventKind::AppRender;
+
+        EventKind   Kind()   const noexcept override { return kKind; }
+        const char* Name()   const noexcept override { return "AppRender"; }
+        uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
+    };
+
+} // namespace Engine

@@ -3,14 +3,14 @@
 
 namespace Engine {
 
-	Layer::Layer(const std::string& debugName)
-		: m_DebugName(debugName)
-	{
-	}
+    std::atomic<Layer::Id> Layer::s_NextId{ 1 };
 
-	Layer::~Layer()
-	{
+    Layer::Layer(std::string name, int orderHint) noexcept
+        : m_Id{ s_NextId.fetch_add(1, std::memory_order_relaxed) }
+        , m_Name(std::move(name))
+        , m_OrderHint(orderHint)
+        , m_Enabled(true)
+    {
+    }
 
-	}
-
-}
+} // namespace Engine

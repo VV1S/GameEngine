@@ -1413,12 +1413,6 @@
     <ClInclude Include="src\Engine\Debug\Instrumentor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Engine\Events\ApplicationEvent.cpp">
-      <Filter>src\Engine\Events</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Engine\Events\KeyEvent.cpp">
-      <Filter>src\Engine\Events</Filter>
-    </ClCompile>
     <ClCompile Include="src\Engine\ImGui\ImGuiBuild.cpp">
       <Filter>src\Engine\ImGui</Filter>
     </ClCompile>
@@ -1489,5 +1483,6 @@
     <ClCompile Include="src\Engine\Core\OrthographicCameraController.cpp" />
     <ClCompile Include="src\Engine\Core\Window.cpp" />
     <ClCompile Include="src\Engine\Renderer\Renderer2D.cpp" />
+    <ClCompile Include="src\Engine\Core\Input.cpp" />
   </ItemGroup>
 </Project>

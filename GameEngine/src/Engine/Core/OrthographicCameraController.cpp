@@ -1,72 +1,110 @@
-
 #include "enginepch.h"
 #include "OrthographicCameraController.h"
 
 #include "Engine/Core/Input.h"
-#include "Engine/Core/KeyCodes.h"
+#include "Engine/Core/KeyCodes.h" // uses your EG_KEY_* constants
+#include <glm/gtc/matrix_transform.hpp>
+#include <cmath>
 
 namespace Engine {
 
-	OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
-		: m_AspectRatio(aspectRatio), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio* m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_Rotation(rotation)
-	{
-	}
+    OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool allowRotation)
+        : m_Aspect(aspectRatio)
+        , m_RotationEnabled(allowRotation)
+        , m_Camera(-m_Aspect * m_Zoom, m_Aspect* m_Zoom, -m_Zoom, m_Zoom)
+    {
+        // Initial projection set from aspect & zoom
+    }
 
-	void OrthographicCameraController::OnUpdate(Timestep ts)
-	{
-		EG_PROFILE_FUNCTION();
+    void OrthographicCameraController::OnUpdate(Timestep dt)
+    {
+        const float delta = dt;
 
-		if (Input::IsKeyPressed(EG_KEY_A))
-			m_CameraPosition.x -= m_CameraTranslationSpeed * ts;
-		else if (Input::IsKeyPressed(EG_KEY_D))
-			m_CameraPosition.x += m_CameraTranslationSpeed * ts;
+        // Pan
+        if (Input::IsKeyPressed(m_Controls.MoveLeft))  m_Position.x -= m_PanSpeed * delta;
+        if (Input::IsKeyPressed(m_Controls.MoveRight)) m_Position.x += m_PanSpeed * delta;
+        if (Input::IsKeyPressed(m_Controls.MoveUp))    m_Position.y += m_PanSpeed * delta;
+        if (Input::IsKeyPressed(m_Controls.MoveDown))  m_Position.y -= m_PanSpeed * delta;
 
-		if (Input::IsKeyPressed(EG_KEY_W))
-			m_CameraPosition.y += m_CameraTranslationSpeed * ts;
-		else if (Input::IsKeyPressed(EG_KEY_S))
-			m_CameraPosition.y -= m_CameraTranslationSpeed * ts;
+        // Rotation (optional)
+        if (m_RotationEnabled)
+        {
+            if (Input::IsKeyPressed(m_Controls.RotCCW)) m_RotationDeg += m_RotateSpeedDeg * delta;
+            if (Input::IsKeyPressed(m_Controls.RotCW))  m_RotationDeg -= m_RotateSpeedDeg * delta;
 
-		if (m_Rotation)
-		{
-			if (Input::IsKeyPressed(EG_KEY_Q))
-				m_CameraRotation += m_CameraRotationSpeed * ts;
-			if (Input::IsKeyPressed(EG_KEY_E))
-				m_CameraRotation -= m_CameraRotationSpeed * ts;
+            // Wrap to [-180, 180] to avoid drift
+            if (m_RotationDeg > 180.0f)  m_RotationDeg -= 360.0f;
+            if (m_RotationDeg < -180.0f) m_RotationDeg += 360.0f;
 
-			m_Camera.SetRotation(m_CameraRotation);
-		}
+            m_Camera.SetRotation(m_RotationDeg);
+        }
 
-		m_Camera.SetPosition(m_CameraPosition);
+        // Apply translation
+        m_Camera.SetPosition(m_Position);
 
-		m_CameraTranslationSpeed = m_ZoomLevel;
-	}
+        // Optionally adapt pan speed to zoom (feels nicer when zoomed-in)
+        m_PanSpeed = std::max(0.25f, m_Zoom);
+    }
 
-	void OrthographicCameraController::OnEvent(Event& e)
-	{
-		EG_PROFILE_FUNCTION();
+    void OrthographicCameraController::OnEvent(Event& e)
+    {
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<MouseScrolledEvent>(
+            BindEvent(this, &OrthographicCameraController::OnMouseScrolled));
+        dispatcher.Dispatch<WindowResizeEvent>(
+            BindEvent(this, &OrthographicCameraController::OnWindowResized));
+    }
 
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseScrolledEvent>(EG_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
-		dispatcher.Dispatch<WindowResizeEvent>(EG_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
-	}
+    bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
+    {
+        SetZoomLevel(m_Zoom - e.GetYOffset() * m_ZoomStep);
+        return false;
+    }
 
-	bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
-	{
-		EG_PROFILE_FUNCTION();
+    bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
+    {
+        const float w = static_cast<float>(e.GetWidth());
+        const float h = static_cast<float>(e.GetHeight());
+        if (w <= 0.0f || h <= 0.0f) return false;
 
-		m_ZoomLevel -= e.GetYOffset() * 0.25f;
-		m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);
-		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-		return false;
-	}
+        SetAspectRatio(w / h);
+        return false;
+    }
 
-	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
-	{
-		EG_PROFILE_FUNCTION();
+    void OrthographicCameraController::SetZoomLevel(float z)
+    {
+        m_Zoom = std::clamp(z, m_MinZoom, m_MaxZoom);
+        RecalculateProjection();
+    }
 
-		m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();
-		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-		return false;
-	}
+    void OrthographicCameraController::SetZoomLimits(float minZ, float maxZ)
+    {
+        if (minZ > maxZ) std::swap(minZ, maxZ);
+        m_MinZoom = std::max(0.001f, minZ);
+        m_MaxZoom = std::max(m_MinZoom, maxZ);
+        SetZoomLevel(m_Zoom); // clamp and update
+    }
 
-}
+    void OrthographicCameraController::SetAspectRatio(float aspect)
+    {
+        m_Aspect = std::max(0.001f, aspect);
+        RecalculateProjection();
+    }
+
+    void OrthographicCameraController::Reset()
+    {
+        m_Position = { 0.0f, 0.0f, 0.0f };
+        m_RotationDeg = 0.0f;
+        m_Zoom = std::clamp(m_Zoom, m_MinZoom, m_MaxZoom);
+
+        m_Camera.SetPosition(m_Position);
+        m_Camera.SetRotation(m_RotationDeg);
+        RecalculateProjection();
+    }
+
+    void OrthographicCameraController::RecalculateProjection()
+    {
+        m_Camera.SetProjection(-m_Aspect * m_Zoom, m_Aspect * m_Zoom, -m_Zoom, m_Zoom);
+    }
+
+} // namespace Engine

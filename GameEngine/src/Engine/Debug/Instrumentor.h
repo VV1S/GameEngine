@@ -1,133 +1,167 @@
 #pragma once
 
 #include <string>
-#include <chrono>
-#include <algorithm>
 #include <fstream>
-
+#include <algorithm>
+#include <chrono>
 #include <thread>
+#include <mutex>
 
 namespace Engine {
-	struct ProfileResult
-	{
+
+	// Single trace event (Chrome Tracing format)
+	struct ProfileResult {
 		std::string Name;
-		long long Start, End;
-		uint32_t ThreadID;
+		long long   Start;    // microseconds since epoch
+		long long   End;      // microseconds since epoch
+		uint32_t    ThreadID; // hashed thread id
 	};
 
-	struct InstrumentationSession
-	{
+	// Session metadata
+	struct InstrumentationSession {
 		std::string Name;
 	};
 
-	class Instrumentor
-	{
-	private:
-		InstrumentationSession* m_CurrentSession;
-		std::ofstream m_OutputStream;
-		int m_ProfileCount;
+	// Minimal, file-based tracing sink producing Chrome Tracing JSON.
+	// Thread-safe writes; only one active session at a time.
+	class Instrumentor {
 	public:
-		Instrumentor()
-			: m_CurrentSession(nullptr), m_ProfileCount(0)
-		{
-		}
+		Instrumentor() = default;
+		~Instrumentor() { EndSession(); }
 
-		void BeginSession(const std::string& name, const std::string& filepath = "results.json")
-		{
-			m_OutputStream.open(filepath);
-			WriteHeader();
+		// Begins a new profiling session. If another session is open, it is closed first.
+		void BeginSession(const std::string& name, const std::string& filepath = "trace.json") {
+			std::scoped_lock lock(m_Mutex);
+
+			// Gracefully end a previous session if the user forgot to close it
+			if (m_CurrentSession) {
+				InternalEndSession();
+			}
+
+			m_Output.open(filepath, std::ios::out | std::ios::trunc);
+			if (!m_Output.is_open()) {
+				// If opening fails, leave no session active
+				m_CurrentSession = nullptr;
+				m_ProfileCount = 0;
+				return;
+			}
+
 			m_CurrentSession = new InstrumentationSession{ name };
-		}
-
-		void EndSession()
-		{
-			WriteFooter();
-			m_OutputStream.close();
-			delete m_CurrentSession;
-			m_CurrentSession = nullptr;
 			m_ProfileCount = 0;
+			WriteHeader();
 		}
 
-		void WriteProfile(const ProfileResult& result)
-		{
+		// Ends the current session (if any).
+		void EndSession() {
+			std::scoped_lock lock(m_Mutex);
+			InternalEndSession();
+		}
+
+		// Emits a single event entry.
+		void WriteProfile(const ProfileResult& result) {
+			std::scoped_lock lock(m_Mutex);
+			if (!m_CurrentSession || !m_Output.is_open()) return;
+
 			if (m_ProfileCount++ > 0)
-				m_OutputStream << ",";
+				m_Output << ",";
 
-			std::string name = result.Name;
-			std::replace(name.begin(), name.end(), '"', '\'');
+			std::string safeName = result.Name;
+			std::replace(safeName.begin(), safeName.end(), '"', '\'');
 
-			m_OutputStream << "{";
-			m_OutputStream << "\"cat\":\"function\",";
-			m_OutputStream << "\"dur\":" << (result.End - result.Start) << ',';
-			m_OutputStream << "\"name\":\"" << name << "\",";
-			m_OutputStream << "\"ph\":\"X\",";
-			m_OutputStream << "\"pid\":0,";
-			m_OutputStream << "\"tid\":" << result.ThreadID << ",";
-			m_OutputStream << "\"ts\":" << result.Start;
-			m_OutputStream << "}";
+			m_Output << "{";
+			m_Output << R"("cat":"function",)";
+			m_Output << R"("dur":)" << (result.End - result.Start) << ",";
+			m_Output << R"("name":")" << safeName << R"(",)";
+			m_Output << R"("ph":"X",)";
+			m_Output << R"("pid":0,)";
+			m_Output << R"("tid":)" << result.ThreadID << ",";
+			m_Output << R"("ts":)" << result.Start;
+			m_Output << "}";
 
-			m_OutputStream.flush();
+			m_Output.flush();
 		}
 
-		void WriteHeader()
-		{
-			m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
-			m_OutputStream.flush();
+		// Global singleton accessor
+		static Instrumentor& Get() {
+			static Instrumentor s_Instance;
+			return s_Instance;
 		}
 
-		void WriteFooter()
-		{
-			m_OutputStream << "]}";
-			m_OutputStream.flush();
+	private:
+		void InternalEndSession() {
+			if (m_CurrentSession) {
+				WriteFooter();
+				m_Output.close();
+				delete m_CurrentSession;
+				m_CurrentSession = nullptr;
+				m_ProfileCount = 0;
+			}
 		}
 
-		static Instrumentor& Get()
-		{
-			static Instrumentor instance;
-			return instance;
+		void WriteHeader() {
+			m_Output << R"({"otherData":{},"traceEvents":[)";
+			m_Output.flush();
 		}
+
+		void WriteFooter() {
+			m_Output << "]}";
+			m_Output.flush();
+		}
+
+	private:
+		std::mutex               m_Mutex;
+		InstrumentationSession* m_CurrentSession = nullptr;
+		std::ofstream            m_Output;
+		int                      m_ProfileCount = 0;
 	};
 
-	class InstrumentationTimer
-	{
+	// RAII timer that writes a trace event on destruction.
+	class InstrumentationTimer {
 	public:
-		InstrumentationTimer(const char* name)
-			: m_Name(name), m_Stopped(false)
-		{
-			m_StartTimepoint = std::chrono::high_resolution_clock::now();
+		explicit InstrumentationTimer(const char* name)
+			: m_Name(name) {
+			m_Start = std::chrono::high_resolution_clock::now();
 		}
 
-		~InstrumentationTimer()
-		{
-			if (!m_Stopped)
-				Stop();
-		}
+		~InstrumentationTimer() { Stop(); }
 
-		void Stop()
-		{
-			auto endTimepoint = std::chrono::high_resolution_clock::now();
+		void Stop() {
+			if (m_Stopped) return;
+			const auto end = std::chrono::high_resolution_clock::now();
 
-			long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
-			long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
+			const auto startUs = std::chrono::time_point_cast<std::chrono::microseconds>(m_Start).time_since_epoch().count();
+			const auto endUs = std::chrono::time_point_cast<std::chrono::microseconds>(end).time_since_epoch().count();
+			const uint32_t tid = static_cast<uint32_t>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
 
-			uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-			Instrumentor::Get().WriteProfile({ m_Name, start, end, threadID });
-
+			Instrumentor::Get().WriteProfile({ m_Name, startUs, endUs, tid });
 			m_Stopped = true;
 		}
+
 	private:
 		const char* m_Name;
-		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;
-		bool m_Stopped;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_Start{};
+		bool m_Stopped = false;
 	};
-}
 
+} // namespace Engine
+
+// -----------------------------------------------------------------------------
+// Macros for convenient profiling usage
+// -----------------------------------------------------------------------------
 #define EG_PROFILE 1
+
 #if EG_PROFILE
 #define EG_PROFILE_BEGIN_SESSION(name, filepath) ::Engine::Instrumentor::Get().BeginSession(name, filepath)
-#define EG_PROFILE_END_SESSION() ::Engine::Instrumentor::Get().EndSession()
-#define EG_PROFILE_SCOPE(name) ::Engine::InstrumentationTimer timer##__LINE__(name);
-#define EG_PROFILE_FUNCTION() EG_PROFILE_SCOPE(__FUNCSIG__)
+#define EG_PROFILE_END_SESSION()                 ::Engine::Instrumentor::Get().EndSession()
+#define EG_PROFILE_SCOPE(name)                   ::Engine::InstrumentationTimer EG_CONCAT(_egProfileTimer_, __LINE__){ name }
+#ifdef _MSC_VER
+#define EG_PROFILE_FUNCTION()                EG_PROFILE_SCOPE(__FUNCSIG__)
+#else
+#define EG_PROFILE_FUNCTION()                EG_PROFILE_SCOPE(__PRETTY_FUNCTION__)
+#endif
+// Helper for unique variable names per line
+#define EG_CONCAT_INNER(a, b) a##b
+#define EG_CONCAT(a, b)       EG_CONCAT_INNER(a, b)
 #else
 #define EG_PROFILE_BEGIN_SESSION(name, filepath)
 #define EG_PROFILE_END_SESSION()

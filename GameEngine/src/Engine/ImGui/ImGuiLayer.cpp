@@ -4,97 +4,169 @@
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "GLFW/glfw3.h"
 
 #include "Engine/Core/Application.h"
+#include "Engine/Core/Window.h"
 
-// TEMPORARY
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 namespace Engine {
 
-	ImGuiLayer::ImGuiLayer()
-		: Layer("ImGuiLayer")
-	{
-	}
+    void ImGuiLayer::ApplyDarkTheme()
+    {
+        EG_PROFILE_FUNCTION(); // styl te¿ mo¿e byæ œledzony
 
-	ImGuiLayer::~ImGuiLayer()
-	{
-	}
+        ImGui::StyleColorsDark();
+        auto& style = ImGui::GetStyle();
 
-	void ImGuiLayer::OnAttach()
-	{
-		EG_PROFILE_FUNCTION();
+        style.WindowRounding = 6.0f;
+        style.FrameRounding = 5.0f;
+        style.GrabRounding = 5.0f;
+        style.ScrollbarRounding = 8.0f;
 
-		// Setup Dear ImGui context
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
-		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
+        ImVec4* colors = style.Colors;
+        colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.11f, 0.12f, 1.0f);
+        colors[ImGuiCol_TitleBg] = ImVec4(0.07f, 0.08f, 0.09f, 1.0f);
+        colors[ImGuiCol_TitleBgActive] = ImVec4(0.15f, 0.16f, 0.18f, 1.0f);
+        colors[ImGuiCol_Header] = ImVec4(0.20f, 0.21f, 0.24f, 1.0f);
+        colors[ImGuiCol_HeaderHovered] = ImVec4(0.28f, 0.30f, 0.34f, 1.0f);
+        colors[ImGuiCol_HeaderActive] = ImVec4(0.24f, 0.26f, 0.30f, 1.0f);
+        colors[ImGuiCol_FrameBg] = ImVec4(0.16f, 0.17f, 0.19f, 1.0f);
+        colors[ImGuiCol_FrameBgHovered] = ImVec4(0.22f, 0.23f, 0.26f, 1.0f);
+        colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.28f, 0.31f, 1.0f);
+        colors[ImGuiCol_Button] = ImVec4(0.19f, 0.20f, 0.22f, 1.0f);
+        colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.27f, 0.29f, 1.0f);
+        colors[ImGuiCol_ButtonActive] = ImVec4(0.33f, 0.35f, 0.38f, 1.0f);
+    }
 
-		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsClassic();
+    ImGuiLayer::ImGuiLayer(const Options& opts)
+        : Layer("ImGuiLayer"), m_Opts(opts)
+    {
+        // konstruktor zwykle bez profilowania (krótki), ale mo¿esz dodaæ:
+        // EG_PROFILE_FUNCTION();
+    }
 
-		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-		ImGuiStyle& style = ImGui::GetStyle();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-		}
+    ImGuiLayer::~ImGuiLayer()
+    {
+        // zabezpieczenie na wypadek braku OnDetach
+        if (m_Initialized)
+            OnDetach();
+    }
 
-		Application& app = Application::Get();
-		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+    ImFont* ImGuiLayer::AddFontFromFile(const char* path, float sizePixels, bool setAsDefault)
+    {
+        EG_PROFILE_FUNCTION();
 
-		// Setup Platform/Renderer bindings
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init("#version 410");
-	}
+        IM_ASSERT(ImGui::GetCurrentContext() != nullptr && "AddFontFromFile: call after OnAttach()");
+        auto& io = ImGui::GetIO();
+        ImFont* font = io.Fonts->AddFontFromFileTTF(path, sizePixels);
+        if (setAsDefault && font)
+            io.FontDefault = font;
+        return font;
+    }
 
-	void ImGuiLayer::OnDetach()
-	{
-		EG_PROFILE_FUNCTION();
+    void ImGuiLayer::OnAttach()
+    {
+        EG_PROFILE_FUNCTION();
 
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
-	}
+        if (m_Initialized)
+            return;
 
-	void ImGuiLayer::Begin()
-	{
-		EG_PROFILE_FUNCTION();
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-	}
+        auto& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        if (m_Opts.EnableDocking)   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        if (m_Opts.EnableViewports) io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-	void ImGuiLayer::End()
-	{
-		EG_PROFILE_FUNCTION();
+        ApplyDarkTheme();
 
-		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
-		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+        if (m_Opts.EnableViewports)
+        {
+            auto& style = ImGui::GetStyle();
+            style.WindowRounding = 5.0f;
+            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        }
 
-		// Rendering
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        Application& app = Application::Get();
+        GLFWwindow* glfwWin = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
-	}
+        // Profiluj osobno init backendów – czêsto problematyczne miejsce
+        {
+            EG_PROFILE_SCOPE("ImGui_ImplGlfw_InitForOpenGL");
+            ImGui_ImplGlfw_InitForOpenGL(glfwWin, false);
+        }
+        {
+            EG_PROFILE_SCOPE("ImGui_ImplOpenGL3_Init");
+            ImGui_ImplOpenGL3_Init("#version 410");
+        }
 
-}
+        m_Initialized = true;
+    }
+
+    void ImGuiLayer::OnDetach()
+    {
+        EG_PROFILE_FUNCTION();
+
+        if (!m_Initialized)
+            return;
+
+        {
+            EG_PROFILE_SCOPE("ImGui_ImplOpenGL3_Shutdown");
+            ImGui_ImplOpenGL3_Shutdown();
+        }
+        {
+            EG_PROFILE_SCOPE("ImGui_ImplGlfw_Shutdown");
+            ImGui_ImplGlfw_Shutdown();
+        }
+        ImGui::DestroyContext();
+
+        m_Initialized = false;
+    }
+
+    void ImGuiLayer::Begin()
+    {
+        EG_PROFILE_FUNCTION();
+
+        if (!m_Initialized)
+            return;
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
+
+    void ImGuiLayer::End()
+    {
+        EG_PROFILE_FUNCTION();
+
+        if (!m_Initialized)
+            return;
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        uint32_t fbw = 0, fbh = 0;
+        auto& window = Application::Get().GetWindow();
+        window.GetFramebufferSize(fbw, fbh);
+        io.DisplaySize = ImVec2(static_cast<float>(fbw), static_cast<float>(fbh));
+
+        ImGui::Render();
+
+        {
+            EG_PROFILE_SCOPE("ImGui_ImplOpenGL3_RenderDrawData");
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
+
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            EG_PROFILE_SCOPE("ImGui Multi-Viewport Render");
+            GLFWwindow* backup = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup);
+        }
+    }
+
+} // namespace Engine
