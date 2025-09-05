@@ -17,28 +17,27 @@ namespace Engine {
         struct Options {
             bool EnableDocking = true;
             bool EnableViewports = true;
-            // You can add more flags here if needed
         };
 
         explicit ImGuiLayer(const Options& opts = {});
         ~ImGuiLayer() override;
 
         // Layer
-        void OnAttach() override;   // safe to call multiple times
-        void OnDetach() override;   // safe to call if already detached
+        void OnAttach() override;   
+        void OnDetach() override;   
 
         // Per-frame
         void Begin();
         void End();
 
-        // Configuration helpers (valid before OnAttach or after OnDetach+OnAttach)
+        // Configuration helpers
         void SetDockingEnabled(bool enable) { m_Opts.EnableDocking = enable; }
         void SetViewportsEnabled(bool enable) { m_Opts.EnableViewports = enable; }
 
         // Fonts
         ImFont* AddFontFromFile(const char* path, float sizePixels, bool setAsDefault = false);
 
-        // Style/theme
+        // Theme
         static void ApplyDarkTheme();
 
     private:

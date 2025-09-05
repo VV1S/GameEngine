@@ -13,7 +13,6 @@ namespace Engine {
 
 namespace Engine::Detail {
 
-    // WskaŸniki do funkcji zwracaj¹cych Shared<...> *w przestrzeni Engine*.
     using CreateVB = Shared<::Engine::VertexBuffer>(*)(float* data, uint32_t size);
     using CreateIB = Shared<::Engine::IndexBuffer>(*)(uint32_t* indices, uint32_t count);
     using CreateVA = Shared<::Engine::VertexArray>(*)(void);
@@ -34,10 +33,8 @@ namespace Engine::Detail {
         MakeShader shaderFromSrc = nullptr;
     };
 
-    // Dostêp do globalnego zestawu kreatorów (jedna instancja).
     Creators& GetCreators();
 
-    // Powi¹zanie kreatorów dla backendu OpenGL – wo³aj w Renderer::Init()
     void UseOpenGLCreators();
 
 } // namespace Engine::Detail

@@ -31,7 +31,6 @@ namespace Engine {
     void Renderer::Shutdown() {
         EG_PROFILE_FUNCTION();
         Renderer2D::Shutdown();
-        // nothing else to do: no heap globals
     }
 
     void Renderer::OnWindowResize(uint32_t width, uint32_t height) {

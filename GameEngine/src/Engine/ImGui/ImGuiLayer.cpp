@@ -15,7 +15,7 @@ namespace Engine {
 
     void ImGuiLayer::ApplyDarkTheme()
     {
-        EG_PROFILE_FUNCTION(); // styl te¿ mo¿e byæ œledzony
+        EG_PROFILE_FUNCTION();
 
         ImGui::StyleColorsDark();
         auto& style = ImGui::GetStyle();
@@ -43,13 +43,10 @@ namespace Engine {
     ImGuiLayer::ImGuiLayer(const Options& opts)
         : Layer("ImGuiLayer"), m_Opts(opts)
     {
-        // konstruktor zwykle bez profilowania (krótki), ale mo¿esz dodaæ:
-        // EG_PROFILE_FUNCTION();
     }
 
     ImGuiLayer::~ImGuiLayer()
     {
-        // zabezpieczenie na wypadek braku OnDetach
         if (m_Initialized)
             OnDetach();
     }
@@ -93,7 +90,6 @@ namespace Engine {
         Application& app = Application::Get();
         GLFWwindow* glfwWin = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
-        // Profiluj osobno init backendów – czêsto problematyczne miejsce
         {
             EG_PROFILE_SCOPE("ImGui_ImplGlfw_InitForOpenGL");
             ImGui_ImplGlfw_InitForOpenGL(glfwWin, false);

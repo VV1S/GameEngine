@@ -42,4 +42,4 @@ int main(int argc, char** argv)
     return exitCode;
 }
 
-#endif // EG_PLATFORM_WINDOWS
+#endif

@@ -1,4 +1,3 @@
-// Renderer2D.cpp
 #include "enginepch.h"
 #include "Renderer2D.h"
 #include "VertexArray.h"

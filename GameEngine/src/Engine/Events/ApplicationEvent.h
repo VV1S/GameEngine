@@ -5,9 +5,7 @@
 
 namespace Engine {
 
-    // ------------------------------
     // Window Resize
-    // ------------------------------
     class ENGINE_API WindowResizeEvent : public Event
     {
     public:
@@ -34,9 +32,7 @@ namespace Engine {
         uint32_t m_Width, m_Height;
     };
 
-    // ------------------------------
     // Window Close
-    // ------------------------------
     class ENGINE_API WindowCloseEvent : public Event
     {
     public:
@@ -47,9 +43,7 @@ namespace Engine {
         uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
     };
 
-    // ------------------------------
     // App Tick
-    // ------------------------------
     class ENGINE_API AppTickEvent : public Event
     {
     public:
@@ -60,9 +54,7 @@ namespace Engine {
         uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
     };
 
-    // ------------------------------
     // App Update
-    // ------------------------------
     class ENGINE_API AppUpdateEvent : public Event
     {
     public:
@@ -73,9 +65,7 @@ namespace Engine {
         uint32_t    Groups() const noexcept override { return ToMask(EventGroup::Application); }
     };
 
-    // ------------------------------
     // App Render
-    // ------------------------------
     class ENGINE_API AppRenderEvent : public Event
     {
     public:

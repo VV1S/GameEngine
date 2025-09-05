@@ -10,9 +10,8 @@
 
 namespace Engine {
 
-    // A simple, opinionated container for layers.
     // - Pure storage: NO OnAttach/OnDetach here (Application handles lifecycle).
-    // - Maintains "normal layers" first, then overlays after m_InsertIndex.
+    // - Maintains normal layers first, then overlays after m_InsertIndex.
     // - Offers convenience removals and lookups by id/name.
     class ENGINE_API LayerStack
     {

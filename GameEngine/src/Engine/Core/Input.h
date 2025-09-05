@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include <utility>   // std::pair
+#include <utility>
 
 namespace Engine {
 

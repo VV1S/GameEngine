@@ -2,7 +2,7 @@
 
 namespace Engine {
 
-    // Thin interface for a graphics context (GLFW/OpenGL, etc.)
+    // Interface for a graphics context (GLFW/OpenGL, etc.)
     class GraphicsContext {
     public:
         virtual ~GraphicsContext() = default;

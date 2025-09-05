@@ -1,4 +1,3 @@
-// RendererAPI.cpp
 #include "enginepch.h"
 #include "RendererAPI.h"
 

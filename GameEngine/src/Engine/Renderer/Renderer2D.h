@@ -1,4 +1,3 @@
-// Renderer2D.h
 #pragma once
 #include <glm/glm.hpp>
 #include "OrthographicCamera.h"

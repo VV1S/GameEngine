@@ -1,4 +1,3 @@
-// RenderCommand.h
 #pragma once
 #include "RendererAPI.h"
 

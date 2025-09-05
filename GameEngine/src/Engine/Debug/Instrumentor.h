@@ -145,9 +145,7 @@ namespace Engine {
 
 } // namespace Engine
 
-// -----------------------------------------------------------------------------
-// Macros for convenient profiling usage
-// -----------------------------------------------------------------------------
+// Macros for profiling usage
 #define EG_PROFILE 1
 
 #if EG_PROFILE

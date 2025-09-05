@@ -1,7 +1,7 @@
 #include "enginepch.h"
 #include "OpenGLVertexArray.h"
 #include "Engine/Renderer/Buffer.h"
-#include "Platforms/OpenGL/OpenGLBuffer.h" // <- potrzebny dla OpenGLVertexBuffer/OpenGLIndexBuffer::id()
+#include "Platforms/OpenGL/OpenGLBuffer.h"
 #include <glad/glad.h>
 
 namespace Engine {
@@ -80,14 +80,13 @@ namespace Engine {
             case ShaderDataType::Mat3:
             case ShaderDataType::Mat4: {
                 const uint32_t cols = (e.Type == ShaderDataType::Mat3) ? 3u : 4u;
-                const uint32_t colSize = (uint32_t)sizeof(float) * cols; // przesuniêcie miêdzy kolumnami
+                const uint32_t colSize = (uint32_t)sizeof(float) * cols;
 
                 for (uint32_t c = 0; c < cols; ++c) {
                     glEnableVertexArrayAttrib(m_VAO, attrib);
                     glVertexArrayAttribBinding(m_VAO, attrib, binding);
                     glVertexArrayAttribFormat(m_VAO, attrib, (GLint)cols, GL_FLOAT, norm,
                         (GLuint)(e.Offset + c * colSize));
-                    // Jeœli bêdziesz instancjowaæ: glVertexArrayBindingDivisor(m_VAO, binding, 1);
                     attrib++;
                 }
             } break;

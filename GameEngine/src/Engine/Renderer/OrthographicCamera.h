@@ -43,7 +43,7 @@ namespace Engine {
         void MarkViewDirty();
         void MarkProjDirty();
 
-        // Te metody musz¹ byæ const, a m_* mutable
+
         void RebuildViewIfNeeded() const;
         void RebuildProjIfNeeded() const;
         void RebuildViewProjIfNeeded() const;
