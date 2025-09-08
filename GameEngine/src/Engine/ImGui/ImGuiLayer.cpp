@@ -65,10 +65,7 @@ namespace Engine {
 
     void ImGuiLayer::OnAttach()
     {
-        EG_PROFILE_FUNCTION();
-
-        if (m_Initialized)
-            return;
+        if (m_Initialized) return;
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -80,27 +77,25 @@ namespace Engine {
 
         ApplyDarkTheme();
 
-        if (m_Opts.EnableViewports)
+        // Pobierz okno z aplikacji
+        GLFWwindow* glfwWin = nullptr;
         {
-            auto& style = ImGui::GetStyle();
-            style.WindowRounding = 5.0f;
-            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+            Application& app = Application::Get();
+            glfwWin = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
         }
 
-        Application& app = Application::Get();
-        GLFWwindow* glfwWin = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
-
-        {
-            EG_PROFILE_SCOPE("ImGui_ImplGlfw_InitForOpenGL");
-            ImGui_ImplGlfw_InitForOpenGL(glfwWin, false);
-        }
-        {
-            EG_PROFILE_SCOPE("ImGui_ImplOpenGL3_Init");
-            ImGui_ImplOpenGL3_Init("#version 410");
+        // Jeœli nie mamy wa¿nego okna – **przerwij bez inicjalizacji backendów**
+        if (!glfwWin) {
+            // Zostaw kontekst ImGui, ale nie w³¹czaj backendów – nic nie bêdzie renderowane
+            m_Initialized = false;
+            return;
         }
 
+        ImGui_ImplGlfw_InitForOpenGL(glfwWin, false);
+        ImGui_ImplOpenGL3_Init("#version 410");
         m_Initialized = true;
     }
+
 
     void ImGuiLayer::OnDetach()
     {

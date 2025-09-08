@@ -39,6 +39,10 @@ namespace Engine {
         void UpdateLayers(Timestep dt);
         void RenderImGui();
 
+#ifdef EG_TESTS
+        friend struct ApplicationTestAccess; // albo: friend struct ApplicationTestAccess;
+#endif
+
     private:
         std::unique_ptr<Window>    m_Window;
         std::shared_ptr<ImGuiLayer> m_ImGuiLayer;

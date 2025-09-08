@@ -29,9 +29,11 @@ namespace Engine {
 
         Renderer::Init();
 
-        // Setup ImGui overlay
+        // Setup ImGui overlay – w testach pomijamy
+#ifndef EG_TESTS
         m_ImGuiLayer = std::make_shared<ImGuiLayer>();
         AddOverlay(m_ImGuiLayer);
+#endif
     }
 
     Application::~Application()
@@ -97,6 +99,9 @@ namespace Engine {
 
     void Application::UpdateLayers(Timestep dt)
     {
+        if (m_Minimized)
+            return;
+
         for (auto& layer : m_LayerStack)
         {
             if (layer->IsEnabled())
@@ -106,13 +111,14 @@ namespace Engine {
 
     void Application::RenderImGui()
     {
+#ifndef EG_TESTS
+        if (!m_ImGuiLayer) return;
         m_ImGuiLayer->Begin();
         for (auto& layer : m_LayerStack)
-        {
             if (layer->IsEnabled())
                 layer->OnImGuiRender();
-        }
         m_ImGuiLayer->End();
+#endif
     }
 
     bool Application::OnWindowClose(WindowCloseEvent&)

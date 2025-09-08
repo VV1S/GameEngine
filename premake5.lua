@@ -16,13 +16,14 @@ IncludeDir["stb_image"] = "GameEngine/vendor/stb_image"
 include "GameEngine/vendor/GLFW"
 include "GameEngine/vendor/Glad"
 include "GameEngine/vendor/imgui"
+include "premake5.tests.lua"
 
 project "GameEngine"
     location "GameEngine"
     kind "StaticLib"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
+    staticruntime "off"
     targetname "GameEngine"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -44,6 +45,7 @@ project "GameEngine"
         -- ImGui stdlib binding (needed for ImGui::InputText(std::string*))
         "%{prj.name}/vendor/imgui/misc/cpp/imgui_stdlib.cpp",
 
+        "GameEngine/src/Engine/Core/Application.cpp",
         -- Build tools (Variant A)
         "%{prj.location}/src/Engine/Tools/**.h",
         "%{prj.location}/src/Engine/Tools/**.cpp"
@@ -75,8 +77,8 @@ project "GameEngine"
         systemversion "latest"
         defines {
             "EG_PLATFORM_WINDOWS",
-            "EG_BUILD_DLL",
-            "GLFW_INCLUDE_NONE"
+            "GLFW_INCLUDE_NONE",
+            "EG_STATIC"
         }
         -- BuildManager::RunGame uses ShellExecuteA
         links { "Shell32.lib" }
@@ -107,7 +109,7 @@ project "Sandbox"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"
-    staticruntime "on"
+    staticruntime "off"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir    ("bin-int/" .. outputdir .. "/%{prj.name}")

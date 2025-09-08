@@ -7,3 +7,6 @@
 [submodule "GameEngine/vendor/glm"]
 	path = GameEngine/vendor/glm
 	url = https://github.com/g-truc/glm
+[submodule "Tests/third_party/googletest"]
+	path = Tests/third_party/googletest
+	url = https://github.com/google/googletest.git

@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Dist|x64">
+      <Configuration>Dist</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{28E2A6E9-946D-14AE-9D7E-97A2098970AE}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>GameEngineTests</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\Debug-windows-x86_64\GameEngineTests\</OutDir>
+    <IntDir>..\bin-int\Debug-windows-x86_64\GameEngineTests\</IntDir>
+    <TargetName>GameEngineTests</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin\Release-windows-x86_64\GameEngineTests\</OutDir>
+    <IntDir>..\bin-int\Release-windows-x86_64\GameEngineTests\</IntDir>
+    <TargetName>GameEngineTests</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\bin\Dist-windows-x86_64\GameEngineTests\</OutDir>
+    <IntDir>..\bin-int\Dist-windows-x86_64\GameEngineTests\</IntDir>
+    <TargetName>GameEngineTests</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>EG_PLATFORM_WINDOWS;GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;EG_STATIC;EG_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;helpers;..\GameEngine\src;..\GameEngine\src\Engine;..\GameEngine\vendor\spdlog\include;..\GameEngine\vendor\GLFW\include;..\GameEngine\vendor\Glad\include;..\GameEngine\vendor\imgui;..\GameEngine\vendor\glm;..\GameEngine\vendor\stb_image;third_party\googletest\googletest;third_party\googletest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE /DEBUG:FULL %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF NOT EXIST "..\bin\Debug-windows-x86_64\GameEngineTests\assets" (mkdir "..\bin\Debug-windows-x86_64\GameEngineTests\assets")
+xcopy /Q /E /Y /I "..\Sandbox\assets" "..\bin\Debug-windows-x86_64\GameEngineTests\assets"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>EG_PLATFORM_WINDOWS;GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;EG_STATIC;EG_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;helpers;..\GameEngine\src;..\GameEngine\src\Engine;..\GameEngine\vendor\spdlog\include;..\GameEngine\vendor\GLFW\include;..\GameEngine\vendor\Glad\include;..\GameEngine\vendor\imgui;..\GameEngine\vendor\glm;..\GameEngine\vendor\stb_image;third_party\googletest\googletest;third_party\googletest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF NOT EXIST "..\bin\Release-windows-x86_64\GameEngineTests\assets" (mkdir "..\bin\Release-windows-x86_64\GameEngineTests\assets")
+xcopy /Q /E /Y /I "..\Sandbox\assets" "..\bin\Release-windows-x86_64\GameEngineTests\assets"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>EG_PLATFORM_WINDOWS;GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;EG_STATIC;EG_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;helpers;..\GameEngine\src;..\GameEngine\src\Engine;..\GameEngine\vendor\spdlog\include;..\GameEngine\vendor\GLFW\include;..\GameEngine\vendor\Glad\include;..\GameEngine\vendor\imgui;..\GameEngine\vendor\glm;..\GameEngine\vendor\stb_image;third_party\googletest\googletest;third_party\googletest\googletest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF NOT EXIST "..\bin\Dist-windows-x86_64\GameEngineTests\assets" (mkdir "..\bin\Dist-windows-x86_64\GameEngineTests\assets")
+xcopy /Q /E /Y /I "..\Sandbox\assets" "..\bin\Dist-windows-x86_64\GameEngineTests\assets"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="helpers\InputTestHelpers.h" />
+    <ClInclude Include="TestPch.h" />
+    <ClInclude Include="helpers\ApplicationTestAccess.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-assertion-result.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-death-test.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-matchers.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-message.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-param-test.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-printers.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-spi.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-test-part.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest-typed-test.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest_pred_impl.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\gtest_prod.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\custom\gtest-port.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\custom\gtest-printers.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\custom\gtest.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-death-test-internal.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-filepath.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-internal.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-param-util.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-port-arch.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-port.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-string.h" />
+    <ClInclude Include="third_party\googletest\googletest\include\gtest\internal\gtest-type-util.h" />
+    <ClInclude Include="third_party\googletest\googletest\src\gtest-internal-inl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="integration\test_assets_presence.cpp" />
+    <ClCompile Include="integration\test_renderer_resize.cpp" />
+    <ClCompile Include="integration\test_sandbox_headless.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-assertion-result.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-death-test.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-filepath.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-matchers.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-port.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-printers.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-test-part.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest-typed-test.cc" />
+    <ClCompile Include="third_party\googletest\googletest\src\gtest.cc" />
+    <ClCompile Include="unit\application_tests.cpp">
+      <ForcedIncludeFiles>TestPch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="unit\camera_tests.cpp">
+      <ForcedIncludeFiles>TestPch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="unit\input_tests.cpp">
+      <ForcedIncludeFiles>TestPch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="unit\layer_tests.cpp">
+      <ForcedIncludeFiles>TestPch.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="unit\test_time_utils.cpp">
+      <ForcedIncludeFiles>TestPch.h</ForcedIncludeFiles>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
+      <Project>{D54F7917-C107-BB64-2A0F-94C016E65555}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GameEngine\vendor\GLFW\GLFW.vcxproj">
+      <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GameEngine\vendor\Glad\Glad.vcxproj">
+      <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GameEngine\vendor\imgui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

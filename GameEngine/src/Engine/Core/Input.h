@@ -27,7 +27,7 @@ namespace Engine {
         static void Initialize(Unique<InputBackend> backend);
 
         // Clean up and reset the input system.
-        static void Shutdown();
+        static void Shutdown() noexcept;
 
         // Query functions
         static bool IsKeyPressed(int keycode);

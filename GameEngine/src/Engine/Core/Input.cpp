@@ -9,17 +9,31 @@ namespace Engine {
 
     void Input::Initialize(Unique<InputBackend> backend)
     {
+#ifdef EG_TESTS
+        if (s_Backend) {
+            Shutdown();
+        }
+#else
         EG_CORE_CHECK(!s_Backend, "Input already initialized!");
+#endif
         EG_CORE_CHECK(backend != nullptr, "Input backend must not be null!");
 
         s_BackendOwner = std::move(backend);
         s_Backend = s_BackendOwner.get();
     }
 
-    void Input::Shutdown()
+    void Input::Shutdown() noexcept
     {
+        // Jeœli ju¿ wy³¹czone, nic nie rób
+        if (!s_BackendOwner && !s_Backend)
+            return;
+
+        // Usuñ surowy wskaŸnik jako pierwszy
         s_Backend = nullptr;
-        s_BackendOwner.reset();
+
+        // Wyjmij unikatowy wskaŸnik do zmiennej lokalnej i zniszcz go poza statycznym stanem
+        auto owned = std::move(s_BackendOwner);
+        // owned zniknie po wyjœciu z funkcji -> bezpieczniej wzglêdem destruktorów backendu
     }
 
     bool Input::IsInitialized()
