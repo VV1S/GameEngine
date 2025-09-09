@@ -15,58 +15,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\SandboxApp.cpp">
+    <ClCompile Include="src\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sandbox2D.cpp">
+    <ClCompile Include="src\Course.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ExampleLayer.cpp">
+    <ClCompile Include="src\FXSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GameLayer.cpp">
+    <ClCompile Include="src\PlaySceneLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Random.cpp">
+    <ClCompile Include="src\RNG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Level.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ParticleSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Player.cpp">
+    <ClCompile Include="src\Ship.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\shaders\Texture.glsl" />
-    <None Include="assets\shaders\FlatColor.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\Sandbox2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ExampleLayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameLayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Random.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Level.h">
+    <ClInclude Include="src\Course.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ParticleSystem.h">
+    <ClInclude Include="src\FXSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Player.h">
+    <ClInclude Include="src\PlaySceneLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RNG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ship.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
