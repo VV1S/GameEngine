@@ -35,8 +35,8 @@ namespace Engine {
         if (m_Program) glDeleteProgram(m_Program);
     }
 
-    void OpenGLShader::Bind() const { glUseProgram(m_Program); }
-    void OpenGLShader::Unbind() const { glUseProgram(0); }
+    void OpenGLShader::Binding() const { glUseProgram(m_Program); }
+    void OpenGLShader::Unbinding() const { glUseProgram(0); }
 
     void OpenGLShader::SetInt(const std::string& n, int v) { UploadUniformInt(n, v); }
     void OpenGLShader::SetFloat(const std::string& n, float v) { UploadUniformFloat(n, v); }

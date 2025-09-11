@@ -16,8 +16,8 @@ namespace Engine {
         OpenGLShader(OpenGLShader&&) = delete;
         OpenGLShader& operator=(OpenGLShader&&) = delete;
 
-        void Bind() const override;
-        void Unbind() const override;
+        void Binding() const override;
+        void Unbinding() const override;
 
         void SetInt(const std::string& n, int v) override;
         void SetFloat(const std::string& n, float v) override;

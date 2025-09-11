@@ -39,7 +39,7 @@ namespace Engine {
 
     void ShaderLibrary::Add(const std::string& name, const Shared<Shader>& shader)
     {
-        EG_CORE_CHECK(!Exists(name), "Shader '{}' already exists!", name);
+        EG_CORE_CHECK(!HasShader(name), "Shader '{}' already exists!", name);
         m_Shaders[name] = shader;
     }
 
@@ -63,13 +63,13 @@ namespace Engine {
         return shader;
     }
 
-    Shared<Shader> ShaderLibrary::Get(const std::string& name)
+    Shared<Shader> ShaderLibrary::GetShader(const std::string& name)
     {
-        EG_CORE_CHECK(Exists(name), "Shader '{}' not found!", name);
+        EG_CORE_CHECK(HasShader(name), "Shader '{}' not found!", name);
         return m_Shaders[name];
     }
 
-    bool ShaderLibrary::Exists(const std::string& name) const
+    bool ShaderLibrary::HasShader(const std::string& name) const
     {
         return m_Shaders.find(name) != m_Shaders.end();
     }

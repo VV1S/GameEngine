@@ -10,8 +10,8 @@ namespace Engine {
     public:
         virtual ~Shader() = default;
 
-        virtual void Bind() const = 0;
-        virtual void Unbind() const = 0;
+        virtual void Binding() const = 0;
+        virtual void Unbinding() const = 0;
 
         virtual void SetInt(const std::string& name, int value) = 0;
         virtual void SetFloat(const std::string& name, float value) = 0;
@@ -35,8 +35,8 @@ namespace Engine {
         Shared<Shader> Load(const std::string& filepath);
         Shared<Shader> Load(const std::string& name, const std::string& filepath);
 
-        Shared<Shader> Get(const std::string& name);
-        bool Exists(const std::string& name) const;
+        Shared<Shader> GetShader(const std::string& name);
+        bool HasShader(const std::string& name) const;
 
     private:
         std::unordered_map<std::string, Shared<Shader>> m_Shaders;

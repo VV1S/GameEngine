@@ -50,7 +50,7 @@ namespace Engine {
         d.WhiteTexture->SetData(&white, sizeof(uint32_t));
 
         d.TextureShader = Shader::Create("assets/shaders/Texture.glsl");
-        d.TextureShader->Bind();
+        d.TextureShader->Binding();
         d.TextureShader->SetInt("u_Texture", 0);
 
         Initialized() = true;
@@ -68,7 +68,7 @@ namespace Engine {
 
     void Renderer2D::BeginScene(const OrthographicCamera& camera) {
         EG_PROFILE_FUNCTION();
-        Data().TextureShader->Bind();
+        Data().TextureShader->Binding();
         Data().TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
     }
 

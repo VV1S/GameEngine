@@ -49,7 +49,7 @@ namespace Engine {
         const Shared<VertexArray>& vertexArray,
         const glm::mat4& transform) {
         EG_PROFILE_FUNCTION();
-        shader->Bind();
+        shader->Binding();
         shader->SetMat4("u_ViewProjection", Scene().ViewProjectionMatrix);
         shader->SetMat4("u_Transform", transform);
         vertexArray->Bind();
