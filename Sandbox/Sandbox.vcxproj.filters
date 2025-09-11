@@ -21,9 +21,6 @@
     <ClCompile Include="src\Course.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\FXSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\PlaySceneLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,9 +36,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Course.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FXSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\PlaySceneLayer.h">

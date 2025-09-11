@@ -4,7 +4,7 @@
 #include "Engine/Renderer/Renderer2D.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Renderer/Texture.h"
-#include "FXSystem.h"
+#include "Engine/Renderer/FXSystem.h"
 
 
 class Ship {
@@ -40,8 +40,9 @@ private:
 	float m_Time = 0.0f, m_SmokeT = 0.0f, m_SmokeEvery = 0.4f;
 
 
-	FXSystem m_FX;
-	FXSpec m_Smoke, m_Flame;
+	Engine::FXSystem m_FX;
+
+	Engine::FXSpec m_Smoke, m_Flame;
 
 
 	Engine::Shared<Engine::Texture2D> m_Tex;

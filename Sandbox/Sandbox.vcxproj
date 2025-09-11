@@ -148,7 +148,6 @@ xcopy /Q /E /Y /I "$(SolutionDir)Sandbox\assets" "..\bin\Dist-windows-x86_64\San
   <ItemGroup>
     <ClInclude Include="src\Color.h" />
     <ClInclude Include="src\Course.h" />
-    <ClInclude Include="src\FXSystem.h" />
     <ClInclude Include="src\PlaySceneLayer.h" />
     <ClInclude Include="src\RNG.h" />
     <ClInclude Include="src\Ship.h" />
@@ -156,7 +155,6 @@ xcopy /Q /E /Y /I "$(SolutionDir)Sandbox\assets" "..\bin\Dist-windows-x86_64\San
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Course.cpp" />
-    <ClCompile Include="src\FXSystem.cpp" />
     <ClCompile Include="src\PlaySceneLayer.cpp" />
     <ClCompile Include="src\RNG.cpp" />
     <ClCompile Include="src\Ship.cpp" />
