@@ -22,7 +22,6 @@ public:
 	void Initialize();
 	void Tick(Engine::Timestep dt);
 	void Draw();
-	void Ui();
 
 
 	bool Ended() const { return m_Ended; }

@@ -89,10 +89,6 @@ void Course::Draw()
 
 	m_Ship.Render();
 }
-void Course::Ui()
-{
-	m_Ship.Ui();
-}
 
 
 void Course::SpawnGate(int index, float x)
