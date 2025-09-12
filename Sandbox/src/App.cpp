@@ -2,7 +2,7 @@
 #include <Engine/Core/EntryPoint.h>
 
 
-#include "PlaySceneLayer.h"
+#include "PongLayer.h"
 
 
 class GameApp final : public Engine::Application
@@ -10,7 +10,7 @@ class GameApp final : public Engine::Application
 public:
 	GameApp()
 	{
-		AddLayer(std::make_shared<PlaySceneLayer>());
+		AddLayer(std::make_shared<PongLayer>());
 	}
 };
 

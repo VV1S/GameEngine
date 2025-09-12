@@ -9,11 +9,11 @@ namespace Engine {
 
     struct Renderer2DStorage {
         Shared<VertexArray> QuadVA;
-        Shared<Shader>      TextureShader;
+        Shared<Shader>      ShaderUsedByTexture;
         Shared<Texture2D>   WhiteTexture;
     };
 
-    static Renderer2DStorage& Data() {
+    static Renderer2DStorage& RendererData() {
         static Renderer2DStorage d;
         return d;
     }
@@ -27,7 +27,7 @@ namespace Engine {
         EG_PROFILE_FUNCTION();
         if (Initialized()) return;
 
-        auto& d = Data();
+        auto& d = RendererData();
         d.QuadVA = VertexArray::Create();
 
         const float verts[5 * 4] = {
@@ -49,9 +49,9 @@ namespace Engine {
         uint32_t white = 0xffffffffu;
         d.WhiteTexture->SetData(&white, sizeof(uint32_t));
 
-        d.TextureShader = Shader::Create("assets/shaders/Texture.glsl");
-        d.TextureShader->Binding();
-        d.TextureShader->SetInt("u_Texture", 0);
+        d.ShaderUsedByTexture = Shader::Create("assets/shaders/Texture.glsl");
+        d.ShaderUsedByTexture->Bind();
+        d.ShaderUsedByTexture->SetInt("u_Texture", 0);
 
         Initialized() = true;
     }
@@ -59,17 +59,17 @@ namespace Engine {
     void Renderer2D::Shutdown() {
         EG_PROFILE_FUNCTION();
         if (!Initialized()) return;
-        auto& d = Data();
-        d.TextureShader.reset();
+        auto& d = RendererData();
+        d.ShaderUsedByTexture.reset();
         d.WhiteTexture.reset();
         d.QuadVA.reset();
         Initialized() = false;
     }
 
-    void Renderer2D::BeginScene(const OrthographicCamera& camera) {
+    void Renderer2D::StartScene(const OrthographicCamera& orthographicCamera) {
         EG_PROFILE_FUNCTION();
-        Data().TextureShader->Binding();
-        Data().TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
+        RendererData().ShaderUsedByTexture->Bind();
+        RendererData().ShaderUsedByTexture->SetMat4("u_ViewProjection", orthographicCamera.ShareViewProjectionMatrix());
     }
 
     void Renderer2D::EndScene() {
@@ -80,10 +80,10 @@ namespace Engine {
         const Shared<Texture2D>& tex,
         float tiling,
         const glm::vec4& tint) {
-        auto& d = Data();
-        d.TextureShader->SetMat4("u_Transform", transform);
-        d.TextureShader->SetFloat4("u_Color", tint);
-        d.TextureShader->SetFloat("u_TilingFactor", tiling);
+        auto& d = RendererData();
+        d.ShaderUsedByTexture->SetMat4("u_Transform", transform);
+        d.ShaderUsedByTexture->SetFloat4("u_Color", tint);
+        d.ShaderUsedByTexture->SetFloat("u_TilingFactor", tiling);
         tex->Bind();
         d.QuadVA->Bind();
         RenderCommand::DrawIndexed(d.QuadVA);
@@ -97,7 +97,7 @@ namespace Engine {
         EG_PROFILE_FUNCTION();
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos)
             * glm::scale(glm::mat4(1.0f), { size.x,size.y,1.0f });
-        SubmitQuad(transform, Data().WhiteTexture, 1.0f, color);
+        SubmitQuad(transform, RendererData().WhiteTexture, 1.0f, color);
     }
 
     void Renderer2D::DrawQuad(const glm::vec2& pos, const glm::vec2& size,
@@ -124,7 +124,7 @@ namespace Engine {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos)
             * glm::rotate(glm::mat4(1.0f), r, { 0,0,1 })
             * glm::scale(glm::mat4(1.0f), { size.x,size.y,1.0f });
-        SubmitQuad(transform, Data().WhiteTexture, 1.0f, color);
+        SubmitQuad(transform, RendererData().WhiteTexture, 1.0f, color);
     }
 
     void Renderer2D::DrawRotatedQuad(const glm::vec2& pos, const glm::vec2& size,

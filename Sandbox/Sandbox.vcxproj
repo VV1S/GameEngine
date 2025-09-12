@@ -146,23 +146,23 @@ xcopy /Q /E /Y /I "$(SolutionDir)Sandbox\assets" "..\bin\Dist-windows-x86_64\San
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Color.h" />
-    <ClInclude Include="src\Course.h" />
-    <ClInclude Include="src\PlaySceneLayer.h" />
-    <ClInclude Include="src\RNG.h" />
-    <ClInclude Include="src\Ship.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="src\App.cpp" />
-    <ClCompile Include="src\Course.cpp" />
-    <ClCompile Include="src\PlaySceneLayer.cpp" />
-    <ClCompile Include="src\RNG.cpp" />
-    <ClCompile Include="src\Ship.cpp" />
+    <ClCompile Include="src\PongLayer.cpp" />
+    <ClCompile Include="src\PongUI.cpp" />
+    <ClCompile Include="src\Paddles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
       <Project>{D54F7917-C107-BB64-2A0F-94C016E65555}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Paddles.h" />
+    <ClInclude Include="src\PongUI.h" />
+    <ClInclude Include="src\PongLayer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\Rainbow.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

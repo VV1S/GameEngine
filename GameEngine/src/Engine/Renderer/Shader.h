@@ -10,7 +10,7 @@ namespace Engine {
     public:
         virtual ~Shader() = default;
 
-        virtual void Binding() const = 0;
+        virtual void Bind() const = 0;
         virtual void Unbinding() const = 0;
 
         virtual void SetInt(const std::string& name, int value) = 0;

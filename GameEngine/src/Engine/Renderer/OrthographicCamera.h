@@ -33,7 +33,7 @@ namespace Engine {
         // Mark const — bêd¹ przebudowywa³y cache (mutable)
         const glm::mat4& GetProjectionMatrix() const;
         const glm::mat4& GetViewMatrix() const;
-        const glm::mat4& GetViewProjectionMatrix() const;
+        const glm::mat4& ShareViewProjectionMatrix() const;
 
         const Bounds& GetBounds() const { return m_Bounds; }
         float GetNear() const { return m_Near; }

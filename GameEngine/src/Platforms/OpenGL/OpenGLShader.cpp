@@ -8,7 +8,7 @@
 
 namespace Engine {
 
-    static unsigned ShaderTypeFromString(const std::string& t) {
+    static unsigned GetShaderTypeUsingString(const std::string& t) {
         if (t == "vertex")   return GL_VERTEX_SHADER;
         if (t == "fragment" || t == "pixel")  return GL_FRAGMENT_SHADER;
         EG_CORE_CHECK(false, "Unknown shader stage");
@@ -18,7 +18,7 @@ namespace Engine {
     OpenGLShader::OpenGLShader(const std::string& filepath) {
         EG_PROFILE_FUNCTION();
         const std::string src = ReadFile(filepath);
-        CompileLink(Preprocess(src));
+        CompileShaderByLink(Preprocess(src));
         m_Name = std::filesystem::path(filepath).stem().string();
     }
 
@@ -28,14 +28,14 @@ namespace Engine {
         std::unordered_map<unsigned, std::string> sources;
         sources[GL_VERTEX_SHADER] = vs;
         sources[GL_FRAGMENT_SHADER] = fs;
-        CompileLink(sources);
+        CompileShaderByLink(sources);
     }
 
     OpenGLShader::~OpenGLShader() {
         if (m_Program) glDeleteProgram(m_Program);
     }
 
-    void OpenGLShader::Binding() const { glUseProgram(m_Program); }
+    void OpenGLShader::Bind() const { glUseProgram(m_Program); }
     void OpenGLShader::Unbinding() const { glUseProgram(0); }
 
     void OpenGLShader::SetInt(const std::string& n, int v) { UploadUniformInt(n, v); }
@@ -81,52 +81,52 @@ namespace Engine {
             std::string type = src.substr(begin, eol - begin);
             size_t nextLine = src.find_first_not_of("\r\n", eol);
             pos = src.find(token, nextLine);
-            res[ShaderTypeFromString(type)] = src.substr(nextLine, pos - (nextLine == std::string::npos ? src.size() - 1 : nextLine));
+            res[GetShaderTypeUsingString(type)] = src.substr(nextLine, pos - (nextLine == std::string::npos ? src.size() - 1 : nextLine));
         }
         return res;
     }
 
-    void OpenGLShader::CompileLink(const std::unordered_map<unsigned, std::string>& sources) {
+    void OpenGLShader::CompileShaderByLink(const std::unordered_map<unsigned, std::string>& shaderSources) {
         EG_PROFILE_FUNCTION();
-        EG_CORE_CHECK(!sources.empty() && sources.size() <= 2, "Unsupported shader stages");
+        EG_CORE_CHECK(!shaderSources.empty() && shaderSources.size() <= 2, "Unsupported shader stages");
 
-        const GLuint prog = glCreateProgram();
+        const GLuint program = glCreateProgram();
         std::array<GLuint, 2> ids{};
-        int idx = 0;
+        int index = 0;
 
-        for (const auto& [stage, code] : sources) {
-            GLuint sh = glCreateShader(stage);
-            const char* src = code.c_str();
-            glShaderSource(sh, 1, &src, nullptr);
-            glCompileShader(sh);
+        for (const auto& [glEnum, shaderCode] : shaderSources) {
+            GLuint newShader = glCreateShader(glEnum);
+            const char* source = shaderCode.c_str();
+            glShaderSource(newShader, 1, &source, nullptr);
+            glCompileShader(newShader);
 
-            GLint ok = 0; glGetShaderiv(sh, GL_COMPILE_STATUS, &ok);
-            if (!ok) {
-                GLint len = 0; glGetShaderiv(sh, GL_INFO_LOG_LENGTH, &len);
-                std::string log((size_t)len, '\0');
-                glGetShaderInfoLog(sh, len, &len, log.data());
-                glDeleteShader(sh);
-                EG_CORE_ERROR("Shader compile error:\n{}", log);
-                EG_CORE_CHECK(false, "Compile failed");
+            GLint okay = 0; glGetShaderiv(newShader, GL_COMPILE_STATUS, &okay);
+            if (!okay) {
+                GLint length = 0; glGetShaderiv(newShader, GL_INFO_LOG_LENGTH, &length);
+                std::string log((size_t)length, '\0');
+                glGetShaderInfoLog(newShader, length, &length, log.data());
+                glDeleteShader(newShader);
+                EG_CORE_ERROR("An error occured during compilation:\n{}", log);
+                EG_CORE_CHECK(false, "Compile unsuccessful");
             }
-            glAttachShader(prog, sh);
-            ids[idx++] = sh;
+            glAttachShader(program, newShader);
+            ids[index++] = newShader;
         }
 
-        glLinkProgram(prog);
-        GLint linked = 0; glGetProgramiv(prog, GL_LINK_STATUS, &linked);
+        glLinkProgram(program);
+        GLint linked = 0; glGetProgramiv(program, GL_LINK_STATUS, &linked);
         if (!linked) {
-            GLint len = 0; glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
+            GLint len = 0; glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
             std::string log((size_t)len, '\0');
-            glGetProgramInfoLog(prog, len, &len, log.data());
+            glGetProgramInfoLog(program, len, &len, log.data());
             for (auto id : ids) if (id) glDeleteShader(id);
-            glDeleteProgram(prog);
-            EG_CORE_ERROR("Program link error:\n{}", log);
-            EG_CORE_CHECK(false, "Link failed");
+            glDeleteProgram(program);
+            EG_CORE_ERROR("Linking error:\n{}", log);
+            EG_CORE_CHECK(false, "Link doesn't work");
         }
-        for (auto id : ids) if (id) { glDetachShader(prog, id); glDeleteShader(id); }
+        for (auto id : ids) if (id) { glDetachShader(program, id); glDeleteShader(id); }
 
-        m_Program = prog;
+        m_Program = program;
     }
 
 } // namespace Engine

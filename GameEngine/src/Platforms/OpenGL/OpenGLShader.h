@@ -16,7 +16,7 @@ namespace Engine {
         OpenGLShader(OpenGLShader&&) = delete;
         OpenGLShader& operator=(OpenGLShader&&) = delete;
 
-        void Binding() const override;
+        void Bind() const override;
         void Unbinding() const override;
 
         void SetInt(const std::string& n, int v) override;
@@ -39,7 +39,7 @@ namespace Engine {
     private:
         std::string ReadFile(const std::string& path) const;
         std::unordered_map<unsigned, std::string> Preprocess(const std::string& src) const;
-        void CompileLink(const std::unordered_map<unsigned, std::string>& sources);
+        void CompileShaderByLink(const std::unordered_map<unsigned, std::string>& sources);
 
         int Locate(const std::string& n) const; // cached uniform location
 

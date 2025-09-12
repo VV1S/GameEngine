@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include "Engine/Core/Log.h"
 
 namespace Engine {
 

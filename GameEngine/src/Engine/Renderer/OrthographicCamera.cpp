@@ -66,7 +66,7 @@ namespace Engine {
         return m_View;
     }
 
-    const glm::mat4& OrthographicCamera::GetViewProjectionMatrix() const
+    const glm::mat4& OrthographicCamera::ShareViewProjectionMatrix() const
     {
         RebuildViewProjIfNeeded();
         return m_ViewProjection;

@@ -50,8 +50,8 @@ TEST(OrthographicCamera_Basics, ViewProjectionIsConsistent)
     cam.SetPosition({ 0.5f, -0.25f, 0.f });
     cam.SetRotationDegrees(30.f);
 
-    const glm::mat4 vp1 = cam.GetViewProjectionMatrix();
-    const glm::mat4 vp2 = cam.GetViewProjectionMatrix();
+    const glm::mat4 vp1 = cam.ShareViewProjectionMatrix();
+    const glm::mat4 vp2 = cam.ShareViewProjectionMatrix();
     EXPECT_TRUE(MatNear(vp1, vp2, 1e-4f));
 }
 

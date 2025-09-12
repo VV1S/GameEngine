@@ -37,8 +37,8 @@ namespace Engine {
         RenderCommand::SetViewport(0, 0, width, height);
     }
 
-    void Renderer::BeginScene(OrthographicCamera& camera) {
-        Scene().ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    void Renderer::StartScene(OrthographicCamera& camera) {
+        Scene().ViewProjectionMatrix = camera.ShareViewProjectionMatrix();
     }
 
     void Renderer::EndScene() {
@@ -49,7 +49,7 @@ namespace Engine {
         const Shared<VertexArray>& vertexArray,
         const glm::mat4& transform) {
         EG_PROFILE_FUNCTION();
-        shader->Binding();
+        shader->Bind();
         shader->SetMat4("u_ViewProjection", Scene().ViewProjectionMatrix);
         shader->SetMat4("u_Transform", transform);
         vertexArray->Bind();

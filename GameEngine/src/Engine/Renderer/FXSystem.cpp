@@ -18,7 +18,7 @@ namespace Engine {
 	void FXSystem::Spawn(const FXSpec& s)
 	{
 		Node& n = m_Pool[m_Head];
-		n.live = true;
+		n.alive = true;
 		n.pos = s.pos;
 		n.vel = s.vel;
 		n.vel.x += s.velJitter.x * ((rand() / (float)RAND_MAX) - 0.5f);
@@ -46,9 +46,9 @@ namespace Engine {
 	{
 		const float d = dt.GetSeconds();
 		for (auto& it : m_Pool) {
-			if (!it.live) continue;
+			if (!it.alive) continue;
 			it.left -= d;
-			if (it.left <= 0.0f) { it.live = false; continue; }
+			if (it.left <= 0.0f) { it.alive = false; continue; }
 			it.pos += it.vel * d;
 			it.rot += 0.01f * d;
 		}
@@ -58,7 +58,7 @@ namespace Engine {
 	void FXSystem::Render() const
 	{
 		for (const auto& it : m_Pool) {
-			if (!it.live) continue;
+			if (!it.alive) continue;
 			float t = it.left / it.life;
 			glm::vec4 col = glm::mix(it.c1, it.c0, t); col.a *= t;
 			float sz = glm::mix(it.s1, it.s0, t);

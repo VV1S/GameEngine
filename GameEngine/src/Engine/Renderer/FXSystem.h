@@ -38,7 +38,7 @@ namespace Engine
 
 	private:
 		struct Node {
-			bool live = false;
+			bool alive = false;
 			glm::vec2 pos{ 0 }, vel{ 0 };
 			float rot = 0.0f;
 
